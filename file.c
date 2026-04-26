@@ -1,15 +1,25 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "product.h"
 
 void saveToFile() {
     FILE *fp = fopen("products.txt", "w");
+    if(fp == NULL) {
+        printf("Error saving file.\n");
+        return;
+    }
 
-    for(int i = 0; i < count; i++) {
-        fprintf(fp, "%d %s %f %d\n",
-            products[i].id,
-            products[i].name,
-            products[i].price,
-            products[i].stock);
+    Node* temp = head;
+
+    while(temp != NULL) {
+        fprintf(fp, "%d %s %f %d %d\n",
+            temp->data.id,
+            temp->data.name,
+            temp->data.price,
+            temp->data.stock,
+            temp->data.soldCount);
+
+        temp = temp->next;
     }
 
     fclose(fp);
@@ -17,16 +27,27 @@ void saveToFile() {
 
 void loadFromFile() {
     FILE *fp = fopen("products.txt", "r");
-
     if(fp == NULL) return;
 
-    while(fscanf(fp, "%d %s %f %d",
-        &products[count].id,
-        products[count].name,
-        &products[count].price,
-        &products[count].stock) != EOF) {
+    Product p;
 
-        count++;
+    while(fscanf(fp, "%d %s %f %d %d",
+        &p.id,
+        p.name,
+        &p.price,
+        &p.stock,
+        &p.soldCount) != EOF) {
+
+        Node* newNode = createNode(p);
+
+        if(head == NULL) {
+            head = newNode;
+        } else {
+            Node* temp = head;
+            while(temp->next != NULL)
+                temp = temp->next;
+            temp->next = newNode;
+        }
     }
 
     fclose(fp);
