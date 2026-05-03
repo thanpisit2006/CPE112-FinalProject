@@ -1,89 +1,138 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "product.h"
 
-Product products[MAX];
-int count = 0;
+Node* head = NULL;
+
+Node* createNode(Product p) {
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    newNode->data = p;
+    newNode->next = NULL;
+    return newNode;
+}
 
 void addProduct() {
+    Product p;
+
     printf("Enter ID: ");
-    scanf("%d", &products[count].id);
+    scanf("%d", &p.id);
 
     printf("Enter Name: ");
-    scanf("%s", products[count].name);
+    scanf(" %[^\n]", p.name);
 
     printf("Enter Price: ");
-    scanf("%f", &products[count].price);
+    scanf("%f", &p.price);
 
     printf("Enter Stock: ");
-    scanf("%d", &products[count].stock);
+    scanf("%d", &p.stock);
 
-    count++;
-    printf("Product added successfully!\n");
+    p.soldCount = 0;
+
+    Node* newNode = createNode(p);
+
+    if(head == NULL) {
+        head = newNode;
+    } else {
+        Node* temp = head;
+        while(temp->next != NULL)
+            temp = temp->next;
+        temp->next = newNode;
+    }
+
+    printf("Product added!\n");
 }
 
 void showProducts() {
+    Node* temp = head;
+
+    if(temp == NULL) {
+        printf("No products available.\n");
+        return;
+    }
+
     printf("\n--- Product List ---\n");
-    for(int i = 0; i < count; i++) {
-        printf("ID: %d | Name: %s | Price: %.2f | Stock: %d\n",
-            products[i].id,
-            products[i].name,
-            products[i].price,
-            products[i].stock);
+    while(temp != NULL) {
+        printf("ID: %d | %s | %.2f | Stock: %d | Sold: %d\n",
+            temp->data.id,
+            temp->data.name,
+            temp->data.price,
+            temp->data.stock,
+            temp->data.soldCount);
+
+        temp = temp->next;
     }
-}
-
-void updateProduct() {
-    int id;
-    printf("Enter product ID to update: ");
-    scanf("%d", &id);
-
-    for(int i = 0; i < count; i++) {
-        if(products[i].id == id) {
-            printf("New Price: ");
-            scanf("%f", &products[i].price);
-
-            printf("New Stock: ");
-            scanf("%d", &products[i].stock);
-
-            printf("Updated successfully!\n");
-            return;
-        }
-    }
-    printf("Product not found!\n");
-}
-
-void deleteProduct() {
-    int id;
-    printf("Enter product ID to delete: ");
-    scanf("%d", &id);
-
-    for(int i = 0; i < count; i++) {
-        if(products[i].id == id) {
-            for(int j = i; j < count-1; j++) {
-                products[j] = products[j+1];
-            }
-            count--;
-            printf("Deleted successfully!\n");
-            return;
-        }
-    }
-    printf("Product not found!\n");
 }
 
 void searchProduct() {
     int id;
-    printf("Enter product ID to search: ");
+    printf("Enter ID to search: ");
     scanf("%d", &id);
 
-    for(int i = 0; i < count; i++) {
-        if(products[i].id == id) {
-            printf("Found: %s | Price: %.2f | Stock: %d\n",
-                products[i].name,
-                products[i].price,
-                products[i].stock);
+    Node* temp = head;
+
+    while(temp != NULL) {
+        if(temp->data.id == id) {
+            printf("Found: %s | %.2f | Stock: %d\n",
+                temp->data.name,
+                temp->data.price,
+                temp->data.stock);
             return;
         }
+        temp = temp->next;
     }
-    printf("Product not found!\n");
+
+    printf("Product not found.\n");
+}
+
+void updateProduct() {
+    int id;
+    printf("Enter ID to update: ");
+    scanf("%d", &id);
+
+    Node* temp = head;
+
+    while(temp != NULL) {
+        if(temp->data.id == id) {
+            printf("New Price: ");
+            scanf("%f", &temp->data.price);
+
+            printf("New Stock: ");
+            scanf("%d", &temp->data.stock);
+
+            printf("Updated!\n");
+            return;
+        }
+        temp = temp->next;
+    }
+
+    printf("Product not found.\n");
+}
+
+void deleteProduct() {
+    int id;
+    printf("Enter ID to delete: ");
+    scanf("%d", &id);
+
+    Node* temp = head;
+    Node* prev = NULL;
+
+    while(temp != NULL) {
+        if(temp->data.id == id) {
+
+            if(prev == NULL)
+                head = temp->next;
+            else
+                prev->next = temp->next;
+
+            free(temp);
+            printf("Deleted!\n");
+            return;
+        }
+
+        prev = temp;
+        temp = temp->next;
+    }
+
+    printf("Product not found.\n");
 }
