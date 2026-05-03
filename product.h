@@ -1,17 +1,22 @@
 #ifndef PRODUCT_H
 #define PRODUCT_H
 
-#define MAX 100
-
 typedef struct {
     int id;
     char name[50];
     float price;
     int stock;
+    int soldCount;
 } Product;
 
-extern Product products[MAX];
-extern int count;
+typedef struct Node {
+    Product data;
+    struct Node* next;
+} Node;
+
+extern Node* head;
+
+Node* createNode(Product p);
 
 void addProduct();
 void showProducts();
