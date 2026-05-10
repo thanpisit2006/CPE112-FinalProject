@@ -7,6 +7,13 @@ typedef struct {
     int role; 
 } User;
 
+typedef struct UserNode {
+    User data;
+    struct UserNode* next;
+} UserNode;
+
+#define TABLE_SIZE 100
+
 void registerUser(int role);
 int loginUser(int role);
 

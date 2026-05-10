@@ -5,27 +5,54 @@
 #include "user.h"
 
 void adminMenu() {
+
     int choice;
 
     while(1) {
-        printf("\n--- Admin Menu ---\n");
+
+        printf("\n===== ADMIN MENU =====\n");
         printf("1. Add Product\n");
         printf("2. Show Products\n");
         printf("3. Update Product\n");
         printf("4. Delete Product\n");
-        printf("5. Save & Back\n");
+        printf("5. Sort Products\n");
+        printf("6. Undo Delete\n");
+        printf("7. Save & Back\n");
         printf("Choose: ");
+
         scanf("%d", &choice);
 
         switch(choice) {
-            case 1: addProduct(); break;
-            case 2: showProducts(); break;
-            case 3: updateProduct(); break;
-            case 4: deleteProduct(); break;
-            case 5: 
+
+            case 1:
+                addProduct();
+                break;
+
+            case 2:
+                showProducts();
+                break;
+
+            case 3:
+                updateProduct();
+                break;
+
+            case 4:
+                deleteProduct();
+                break;
+
+            case 5:
+                sortProducts();
+                break;
+
+            case 6:
+                undoDelete();
+                break;
+
+            case 7:
                 saveToFile();
                 return;
-            default: 
+
+            default:
                 printf("Invalid choice!\n");
         }
     }

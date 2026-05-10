@@ -2,6 +2,8 @@
 #include <string.h>
 #include "user.h"
 
+UserNode* hashTable[TABLE_SIZE];
+
 void registerUser(int role) {
 
     FILE *fp;
@@ -116,4 +118,15 @@ int loginUser(int role) {
     printf("Login failed!\n");
 
     return 0;
+}
+
+int hash(char* str) {
+
+    int sum = 0;
+
+    for(int i = 0; str[i] != '\0'; i++) {
+        sum += str[i];
+    }
+
+    return sum % TABLE_SIZE;
 }

@@ -6,6 +6,7 @@
 #include "file.h"
 
 Node* head = NULL;
+StackNode* undoStack = NULL;
 
 Node* createNode(Product p) {
 
@@ -20,6 +21,59 @@ Node* createNode(Product p) {
     newNode->next = NULL;
 
     return newNode;
+}
+
+void pushUndo(Product p) {
+
+    StackNode* newNode = malloc(sizeof(StackNode));
+
+    if(newNode == NULL) {
+        printf("Stack allocation failed!\n");
+        return;
+    }
+
+    newNode->data = p;
+    newNode->next = undoStack;
+
+    undoStack = newNode;
+}
+
+Product popUndo() {
+
+    Product empty = {0};
+
+    if(undoStack == NULL) {
+        return empty;
+    }
+
+    StackNode* temp = undoStack;
+
+    Product p = temp->data;
+
+    undoStack = undoStack->next;
+
+    free(temp);
+
+    return p;
+}
+
+void undoDelete() {
+
+    if(undoStack == NULL) {
+        printf("Nothing to undo!\n");
+        return;
+    }
+
+    Product p = popUndo();
+
+    Node* newNode = createNode(p);
+
+    newNode->next = head;
+    head = newNode;
+
+    saveToFile();
+
+    printf("Undo successful!\n");
 }
 
 void addProduct() {
@@ -180,6 +234,8 @@ void deleteProduct() {
 
         if(temp->data.id == id) {
 
+            pushUndo(temp->data);
+
             if(prev == NULL) {
                 head = temp->next;
             }
@@ -201,4 +257,102 @@ void deleteProduct() {
     }
 
     printf("Product not found.\n");
+}
+
+void sortProducts() {
+
+    if(head == NULL || head->next == NULL) {
+        printf("Not enough products to sort.\n");
+        return;
+    }
+
+    int choice;
+
+    printf("\n--- Sort Menu ---\n");
+    printf("1. Price ASC\n");
+    printf("2. Price DESC\n");
+    printf("3. Stock ASC\n");
+    printf("4. Stock DESC\n");
+    printf("5. Sold ASC\n");
+    printf("6. Sold DESC\n");
+    printf("Choose: ");
+
+    scanf("%d", &choice);
+
+    int swapped;
+
+    Node* ptr1;
+    Node* lptr = NULL;
+
+    do {
+
+        swapped = 0;
+        ptr1 = head;
+
+        while(ptr1->next != lptr) {
+
+            int shouldSwap = 0;
+
+            switch(choice) {
+
+                case 1:
+                    shouldSwap =
+                        ptr1->data.price >
+                        ptr1->next->data.price;
+                    break;
+
+                case 2:
+                    shouldSwap =
+                        ptr1->data.price <
+                        ptr1->next->data.price;
+                    break;
+
+                case 3:
+                    shouldSwap =
+                        ptr1->data.stock >
+                        ptr1->next->data.stock;
+                    break;
+
+                case 4:
+                    shouldSwap =
+                        ptr1->data.stock <
+                        ptr1->next->data.stock;
+                    break;
+
+                case 5:
+                    shouldSwap =
+                        ptr1->data.soldCount >
+                        ptr1->next->data.soldCount;
+                    break;
+
+                case 6:
+                    shouldSwap =
+                        ptr1->data.soldCount <
+                        ptr1->next->data.soldCount;
+                    break;
+
+                default:
+                    printf("Invalid choice!\n");
+                    return;
+            }
+
+            if(shouldSwap) {
+
+                Product temp = ptr1->data;
+                ptr1->data = ptr1->next->data;
+                ptr1->next->data = temp;
+
+                swapped = 1;
+            }
+
+            ptr1 = ptr1->next;
+        }
+
+        lptr = ptr1;
+
+    } while(swapped);
+
+    printf("Products sorted successfully!\n");
+
+    showProducts();
 }

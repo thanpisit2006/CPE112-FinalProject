@@ -56,6 +56,8 @@ dkms.conf
 # debug information files
 *.dwo
 
+app
+note.txt
 ```
 
 ./README.md
@@ -72,8 +74,8 @@ queue custumer a b c
 
 ./data/products.txt
 ```
-2 Rice 5.000000 5
-3 Water 7.000000 9
+2 Rice 5.00 4 1
+3 Water 7.00 9 0
 
 ```
 
@@ -83,6 +85,7 @@ Admintest 12345 1
 Peerapat 1111 0
 Thanpisit 2222 0
 Film 1111 0
+Anna plovesom 0
 
 ```
 
@@ -161,14 +164,23 @@ int loginUser(int role);
 ./src/cart.c
 ```
 #include <stdio.h>
+
 #include "product.h"
+#include "file.h"
 
 int cartIDs[100];
 int cartQty[100];
 int cartCount = 0;
 
 void addToCart() {
-    int id, qty;
+
+    int id;
+    int qty;
+
+    if(cartCount >= 100) {
+        printf("Cart is full!\n");
+        return;
+    }
 
     if(head == NULL) {
         printf("No products available.\n");
@@ -197,21 +209,25 @@ void addToCart() {
                 return;
             }
 
-            // เช็คว่ามีใน cart แล้วไหม
             for(int i = 0; i < cartCount; i++) {
+
                 if(cartIDs[i] == id) {
+
                     cartQty[i] += qty;
+
                     printf("Updated quantity in cart!\n");
+
                     return;
                 }
             }
 
-            // เพิ่มใหม่
             cartIDs[cartCount] = id;
             cartQty[cartCount] = qty;
+
             cartCount++;
 
             printf("Added to cart!\n");
+
             return;
         }
 
@@ -222,6 +238,7 @@ void addToCart() {
 }
 
 void showCart() {
+
     float total = 0;
 
     if(cartCount == 0) {
@@ -239,7 +256,9 @@ void showCart() {
 
             if(temp->data.id == cartIDs[i]) {
 
-                float subtotal = temp->data.price * cartQty[i];
+                float subtotal =
+                    temp->data.price * cartQty[i];
+
                 total += subtotal;
 
                 printf("ID: %d | %s x%d = %.2f\n",
@@ -279,7 +298,9 @@ void checkout() {
                 temp->data.stock -= cartQty[i];
                 temp->data.soldCount += cartQty[i];
 
-                total += temp->data.price * cartQty[i];
+                total +=
+                    temp->data.price * cartQty[i];
+
                 break;
             }
 
@@ -290,9 +311,10 @@ void checkout() {
     printf("Total Payment: %.2f\n", total);
     printf("Purchase successful!\n");
 
+    saveToFile();
+
     cartCount = 0;
 }
-
 ```
 
 ./src/file.c
@@ -302,7 +324,9 @@ void checkout() {
 #include "product.h"
 
 void saveToFile() {
-    FILE *fp = fopen("products.txt", "w");
+
+    FILE *fp = fopen("data/products.txt", "w");
+
     if(fp == NULL) {
         printf("Error saving file.\n");
         return;
@@ -311,12 +335,14 @@ void saveToFile() {
     Node* temp = head;
 
     while(temp != NULL) {
-        fprintf(fp, "%d %s %f %d %d\n",
-            temp->data.id,
-            temp->data.name,
-            temp->data.price,
-            temp->data.stock,
-            temp->data.soldCount);
+
+        fprintf(fp,
+                "%d %s %.2f %d %d\n",
+                temp->data.id,
+                temp->data.name,
+                temp->data.price,
+                temp->data.stock,
+                temp->data.soldCount);
 
         temp = temp->next;
     }
@@ -325,26 +351,36 @@ void saveToFile() {
 }
 
 void loadFromFile() {
-    FILE *fp = fopen("products.txt", "r");
-    if(fp == NULL) return;
+
+    FILE *fp = fopen("data/products.txt", "r");
+
+    if(fp == NULL) {
+        return;
+    }
 
     Product p;
 
-    while(fscanf(fp, "%d %s %f %d %d",
-        &p.id,
-        p.name,
-        &p.price,
-        &p.stock,
-        &p.soldCount) != EOF) {
+    while(fscanf(fp,
+                 "%d %49s %f %d %d",
+                 &p.id,
+                 p.name,
+                 &p.price,
+                 &p.stock,
+                 &p.soldCount) == 5) {
 
         Node* newNode = createNode(p);
 
         if(head == NULL) {
             head = newNode;
-        } else {
+        }
+        else {
+
             Node* temp = head;
-            while(temp->next != NULL)
+
+            while(temp->next != NULL) {
                 temp = temp->next;
+            }
+
             temp->next = newNode;
         }
     }
@@ -468,31 +504,64 @@ int main() {
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "product.h"
+#include "file.h"
 
 Node* head = NULL;
 
 Node* createNode(Product p) {
-    Node* newNode = (Node*)malloc(sizeof(Node));
+
+    Node* newNode = malloc(sizeof(Node));
+
+    if(newNode == NULL) {
+        printf("Memory allocation failed!\n");
+        exit(1);
+    }
+
     newNode->data = p;
     newNode->next = NULL;
+
     return newNode;
 }
 
 void addProduct() {
+
     Product p;
 
     printf("Enter ID: ");
     scanf("%d", &p.id);
 
+    Node* check = head;
+
+    while(check != NULL) {
+
+        if(check->data.id == p.id) {
+            printf("Product ID already exists!\n");
+            return;
+        }
+
+        check = check->next;
+    }
+
     printf("Enter Name: ");
-    scanf(" %[^\n]", p.name);
+    scanf("%49s", p.name);
 
     printf("Enter Price: ");
     scanf("%f", &p.price);
 
+    if(p.price <= 0) {
+        printf("Invalid price!\n");
+        return;
+    }
+
     printf("Enter Stock: ");
     scanf("%d", &p.stock);
+
+    if(p.stock < 0) {
+        printf("Invalid stock!\n");
+        return;
+    }
 
     p.soldCount = 0;
 
@@ -500,17 +569,25 @@ void addProduct() {
 
     if(head == NULL) {
         head = newNode;
-    } else {
+    }
+    else {
+
         Node* temp = head;
-        while(temp->next != NULL)
+
+        while(temp->next != NULL) {
             temp = temp->next;
+        }
+
         temp->next = newNode;
     }
 
-    printf("Product added!\n");
+    saveToFile();
+
+    printf("Product added successfully!\n");
 }
 
 void showProducts() {
+
     Node* temp = head;
 
     if(temp == NULL) {
@@ -519,33 +596,41 @@ void showProducts() {
     }
 
     printf("\n--- Product List ---\n");
+
     while(temp != NULL) {
+
         printf("ID: %d | %s | %.2f | Stock: %d | Sold: %d\n",
-            temp->data.id,
-            temp->data.name,
-            temp->data.price,
-            temp->data.stock,
-            temp->data.soldCount);
+               temp->data.id,
+               temp->data.name,
+               temp->data.price,
+               temp->data.stock,
+               temp->data.soldCount);
 
         temp = temp->next;
     }
 }
 
 void searchProduct() {
+
     int id;
+
     printf("Enter ID to search: ");
     scanf("%d", &id);
 
     Node* temp = head;
 
     while(temp != NULL) {
+
         if(temp->data.id == id) {
+
             printf("Found: %s | %.2f | Stock: %d\n",
-                temp->data.name,
-                temp->data.price,
-                temp->data.stock);
+                   temp->data.name,
+                   temp->data.price,
+                   temp->data.stock);
+
             return;
         }
+
         temp = temp->next;
     }
 
@@ -553,23 +638,31 @@ void searchProduct() {
 }
 
 void updateProduct() {
+
     int id;
+
     printf("Enter ID to update: ");
     scanf("%d", &id);
 
     Node* temp = head;
 
     while(temp != NULL) {
+
         if(temp->data.id == id) {
+
             printf("New Price: ");
             scanf("%f", &temp->data.price);
 
             printf("New Stock: ");
             scanf("%d", &temp->data.stock);
 
+            saveToFile();
+
             printf("Updated!\n");
+
             return;
         }
+
         temp = temp->next;
     }
 
@@ -577,7 +670,9 @@ void updateProduct() {
 }
 
 void deleteProduct() {
+
     int id;
+
     printf("Enter ID to delete: ");
     scanf("%d", &id);
 
@@ -585,15 +680,22 @@ void deleteProduct() {
     Node* prev = NULL;
 
     while(temp != NULL) {
+
         if(temp->data.id == id) {
 
-            if(prev == NULL)
+            if(prev == NULL) {
                 head = temp->next;
-            else
+            }
+            else {
                 prev->next = temp->next;
+            }
 
             free(temp);
+
+            saveToFile();
+
             printf("Deleted!\n");
+
             return;
         }
 
@@ -612,76 +714,118 @@ void deleteProduct() {
 #include "user.h"
 
 void registerUser(int role) {
+
     FILE *fp;
+
     User u;
     User temp;
+
     int adminExists = 0;
 
-    fp = fopen("users.txt", "a+");
+    fp = fopen("data/users.txt", "a+");
+
     if(fp == NULL) {
         printf("Error opening file.\n");
         return;
     }
 
-    // เช็คว่า admin มีแล้วไหม
     rewind(fp);
-    while(fscanf(fp, "%s %s %d", temp.username, temp.password, &temp.role) != EOF) {
+
+    while(fscanf(fp,
+                 "%49s %49s %d",
+                 temp.username,
+                 temp.password,
+                 &temp.role) == 3) {
+
         if(temp.role == 1) {
             adminExists = 1;
         }
     }
 
     if(role == 1 && adminExists) {
-        printf("Admin already exists! Only 1 admin allowed.\n");
+        printf("Admin already exists!\n");
         fclose(fp);
         return;
     }
 
     printf("Enter username: ");
-    scanf("%s", u.username);
+    scanf("%49s", u.username);
+
+    rewind(fp);
+
+    while(fscanf(fp,
+                 "%49s %49s %d",
+                 temp.username,
+                 temp.password,
+                 &temp.role) == 3) {
+
+        if(strcmp(temp.username, u.username) == 0) {
+            printf("Username already exists!\n");
+            fclose(fp);
+            return;
+        }
+    }
 
     printf("Enter password: ");
-    scanf("%s", u.password);
+    scanf("%49s", u.password);
 
     u.role = role;
 
-    fprintf(fp, "%s %s %d\n", u.username, u.password, u.role);
-
-    printf("Register successful!\n");
+    fprintf(fp,
+            "%s %s %d\n",
+            u.username,
+            u.password,
+            u.role);
 
     fclose(fp);
+
+    printf("Register successful!\n");
 }
 
 int loginUser(int role) {
-    FILE *fp;
-    User u;
-    char username[50], password[50];
 
-    fp = fopen("users.txt", "r");
+    FILE *fp;
+
+    User u;
+
+    char username[50];
+    char password[50];
+
+    fp = fopen("data/users.txt", "r");
+
     if(fp == NULL) {
         printf("No users found.\n");
         return 0;
     }
 
     printf("Username: ");
-    scanf("%s", username);
+    scanf("%49s", username);
 
     printf("Password: ");
-    scanf("%s", password);
+    scanf("%49s", password);
 
-    while(fscanf(fp, "%s %s %d", u.username, u.password, &u.role) != EOF) {
+    while(fscanf(fp,
+                 "%49s %49s %d",
+                 u.username,
+                 u.password,
+                 &u.role) == 3) {
+
         if(strcmp(username, u.username) == 0 &&
            strcmp(password, u.password) == 0 &&
            u.role == role) {
 
             fclose(fp);
+
             printf("Login successful!\n");
+
             return 1;
         }
     }
 
     fclose(fp);
+
     printf("Login failed!\n");
+
     return 0;
 }
 ```

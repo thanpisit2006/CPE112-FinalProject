@@ -14,7 +14,13 @@ typedef struct Node {
     struct Node* next;
 } Node;
 
+typedef struct StackNode {
+    Product data;
+    struct StackNode* next;
+} StackNode;
+
 extern Node* head;
+extern StackNode* undoStack;
 
 Node* createNode(Product p);
 
@@ -23,5 +29,11 @@ void showProducts();
 void updateProduct();
 void deleteProduct();
 void searchProduct();
+
+void sortProducts();
+void undoDelete();
+
+void pushUndo(Product p);
+Product popUndo();
 
 #endif
