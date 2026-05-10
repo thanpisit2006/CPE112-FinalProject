@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "product.h"
 #include "file.h"
 #include "cart.h"
@@ -18,8 +19,9 @@ void adminMenu() {
         printf("5. Sort Products\n");
         printf("6. Undo Delete\n");
         printf("7. Sales Report\n");
-        printf("8. Process Orders\n");
-        printf("9. Save & Back\n");
+        printf("8. Show Orders\n");
+        printf("9. Process Next Order\n");
+        printf("10. Save & Back\n");
         printf("Choose: ");
 
         scanf("%d", &choice);
@@ -55,10 +57,14 @@ void adminMenu() {
                 break;
 
             case 8:
-                processOrders();
+                showOrders();
                 break;
 
             case 9:
+                processOrder();
+                break;
+
+            case 10:
                 saveToFile();
                 return;
 
@@ -69,9 +75,11 @@ void adminMenu() {
 }
 
 void customerMenu() {
+
     int choice;
 
     while(1) {
+
         printf("\n--- Customer Menu ---\n");
         printf("1. Show Products\n");
         printf("2. Search Product\n");
@@ -80,26 +88,48 @@ void customerMenu() {
         printf("5. Checkout\n");
         printf("6. Back\n");
         printf("Choose: ");
+
         scanf("%d", &choice);
 
         switch(choice) {
-            case 1: showProducts(); break;
-            case 2: searchProduct(); break;
-            case 3: addToCart(); break;
-            case 4: showCart(); break;
-            case 5: checkout(); break;
-            case 6: return;
-            default: printf("Invalid choice!\n");
+
+            case 1:
+                showProducts();
+                break;
+
+            case 2:
+                searchProduct();
+                break;
+
+            case 3:
+                addToCart();
+                break;
+
+            case 4:
+                showCart();
+                break;
+
+            case 5:
+                checkout(currentUser);
+                break;
+
+            case 6:
+                return;
+
+            default:
+                printf("Invalid choice!\n");
         }
     }
 }
 
 int main() {
+
     int choice;
 
     loadFromFile();
 
     while(1) {
+
         printf("\n=== Stock Management System ===\n");
         printf("1. Register Customer\n");
         printf("2. Register Admin\n");
@@ -107,25 +137,26 @@ int main() {
         printf("4. Login Admin\n");
         printf("5. Exit\n");
         printf("Choose: ");
+
         scanf("%d", &choice);
 
         switch(choice) {
 
             case 1:
-                registerUser(0);  
+                registerUser(0);
                 break;
 
             case 2:
-                registerUser(1);   
+                registerUser(1);
                 break;
 
             case 3:
-                if(loginUser(0))  
+                if(loginUser(0))
                     customerMenu();
                 break;
 
             case 4:
-                if(loginUser(1))   
+                if(loginUser(1))
                     adminMenu();
                 break;
 

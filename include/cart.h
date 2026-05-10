@@ -3,7 +3,8 @@
 
 void addToCart();
 void showCart();
-void checkout();
-void processOrders();
+void checkout(char* username);
+void showOrders();
+void processOrder();
 
 #endif

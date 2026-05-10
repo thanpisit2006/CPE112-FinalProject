@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <string.h>
 #include "product.h"
 #include "file.h"
 
@@ -8,29 +8,21 @@ int cartIDs[100];
 int cartQty[100];
 int cartCount = 0;
 
-typedef struct OrderNode {
+typedef struct Order {
+    char username[50];
+    int ids[100];
+    int qty[100];
+    int count;
+    struct Order* next;
+} Order;
 
-    int productID;
-    int quantity;
+Order* front = NULL;
+Order* rear = NULL;
 
-    struct OrderNode* next;
-
-} OrderNode;
-
-OrderNode* front = NULL;
-OrderNode* rear = NULL;
-
-void enqueueOrder(int id, int qty);
 
 void addToCart() {
 
-    int id;
-    int qty;
-
-    if(cartCount >= 100) {
-        printf("Cart is full!\n");
-        return;
-    }
+    int id, qty;
 
     if(head == NULL) {
         printf("No products available.\n");
@@ -60,24 +52,18 @@ void addToCart() {
             }
 
             for(int i = 0; i < cartCount; i++) {
-
                 if(cartIDs[i] == id) {
-
                     cartQty[i] += qty;
-
                     printf("Updated quantity in cart!\n");
-
                     return;
                 }
             }
 
             cartIDs[cartCount] = id;
             cartQty[cartCount] = qty;
-
             cartCount++;
 
             printf("Added to cart!\n");
-
             return;
         }
 
@@ -86,6 +72,7 @@ void addToCart() {
 
     printf("Product not found!\n");
 }
+
 
 void showCart() {
 
@@ -106,9 +93,7 @@ void showCart() {
 
             if(temp->data.id == cartIDs[i]) {
 
-                float subtotal =
-                    temp->data.price * cartQty[i];
-
+                float subtotal = temp->data.price * cartQty[i];
                 total += subtotal;
 
                 printf("ID: %d | %s x%d = %.2f\n",
@@ -128,98 +113,111 @@ void showCart() {
     printf("Total: %.2f\n", total);
 }
 
-void checkout() {
+
+
+void checkout(char* username) {
 
     if(cartCount == 0) {
         printf("Cart is empty.\n");
         return;
     }
 
-    float total = 0;
+    Order* newOrder = (Order*)malloc(sizeof(Order));
+
+    strcpy(newOrder->username, username);
+    newOrder->count = cartCount;
 
     for(int i = 0; i < cartCount; i++) {
-
-        Node* temp = head;
-
-        while(temp != NULL) {
-
-            if(temp->data.id == cartIDs[i]) {
-
-                temp->data.stock -= cartQty[i];
-                temp->data.soldCount += cartQty[i];
-
-                enqueueOrder(
-                    cartIDs[i],
-                    cartQty[i]
-                );
-
-                total +=
-                    temp->data.price * cartQty[i];
-
-                break;
-            }
-
-            temp = temp->next;
-        }
+        newOrder->ids[i] = cartIDs[i];
+        newOrder->qty[i] = cartQty[i];
     }
 
-    printf("Total Payment: %.2f\n", total);
-    printf("Purchase successful!\n");
+    newOrder->next = NULL;
 
-    saveToFile();
+    if(front == NULL) {
+        front = rear = newOrder;
+    } else {
+        rear->next = newOrder;
+        rear = newOrder;
+    }
 
-    cartCount = 0;
+    printf("Order added to queue successfully!\n");
+
+    cartCount = 0;  
 }
 
-void enqueueOrder(int id, int qty) {
 
-    OrderNode* newNode =
-        malloc(sizeof(OrderNode));
 
-    if(newNode == NULL) {
-        printf("Queue allocation failed!\n");
-        return;
-    }
-
-    newNode->productID = id;
-    newNode->quantity = qty;
-    newNode->next = NULL;
-
-    if(rear == NULL) {
-
-        front = rear = newNode;
-    }
-    else {
-
-        rear->next = newNode;
-        rear = newNode;
-    }
-}
-
-void processOrders() {
+void showOrders() {
 
     if(front == NULL) {
         printf("No pending orders.\n");
         return;
     }
 
-    OrderNode* temp = front;
+    Order* temp = front;
+    int num = 1;
 
-    printf("\nProcessing Order\n");
+    printf("\n===== ORDER QUEUE =====\n");
 
-    printf("Product ID : %d\n",
-           temp->productID);
+    while(temp != NULL) {
 
-    printf("Quantity   : %d\n",
-           temp->quantity);
+        printf("%d. Customer: %s\n", num++, temp->username);
+
+        for(int i = 0; i < temp->count; i++) {
+            printf("   - Product ID: %d | Qty: %d\n",
+                   temp->ids[i],
+                   temp->qty[i]);
+        }
+
+        temp = temp->next;
+    }
+}
+
+
+
+void processOrder() {
+
+    if(front == NULL) {
+        printf("No orders to process.\n");
+        return;
+    }
+
+    Order* temp = front;
+
+    printf("Processing order of %s...\n", temp->username);
+
+    for(int i = 0; i < temp->count; i++) {
+
+        Node* p = head;
+
+        while(p != NULL) {
+
+            if(p->data.id == temp->ids[i]) {
+
+                if(p->data.stock >= temp->qty[i]) {
+                    p->data.stock -= temp->qty[i];
+                    p->data.soldCount += temp->qty[i];
+                } else {
+                    printf("Stock not enough for product ID %d\n",
+                           temp->ids[i]);
+                }
+
+                break;
+            }
+
+            p = p->next;
+        }
+    }
 
     front = front->next;
 
-    if(front == NULL) {
+    if(front == NULL)
         rear = NULL;
-    }
 
     free(temp);
 
-    printf("Order processed!\n");
+    saveToFile();
+
+    printf("Order processed successfully!\n");
 }

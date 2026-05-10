@@ -1,10 +1,12 @@
 #ifndef USER_H
 #define USER_H
 
+#define TABLE_SIZE 100
+
 typedef struct {
     char username[50];
     char password[50];
-    int role; 
+    int role;
 } User;
 
 typedef struct UserNode {
@@ -12,7 +14,8 @@ typedef struct UserNode {
     struct UserNode* next;
 } UserNode;
 
-#define TABLE_SIZE 100
+extern char currentUser[50];
+extern UserNode* hashTable[TABLE_SIZE];   
 
 void registerUser(int role);
 int loginUser(int role);
