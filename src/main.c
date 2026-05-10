@@ -17,7 +17,9 @@ void adminMenu() {
         printf("4. Delete Product\n");
         printf("5. Sort Products\n");
         printf("6. Undo Delete\n");
-        printf("7. Save & Back\n");
+        printf("7. Sales Report\n");
+        printf("8. Process Orders\n");
+        printf("9. Save & Back\n");
         printf("Choose: ");
 
         scanf("%d", &choice);
@@ -49,6 +51,14 @@ void adminMenu() {
                 break;
 
             case 7:
+                salesReport();
+                break;
+
+            case 8:
+                processOrders();
+                break;
+
+            case 9:
                 saveToFile();
                 return;
 

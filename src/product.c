@@ -269,12 +269,14 @@ void sortProducts() {
     int choice;
 
     printf("\n--- Sort Menu ---\n");
-    printf("1. Price ASC\n");
-    printf("2. Price DESC\n");
-    printf("3. Stock ASC\n");
-    printf("4. Stock DESC\n");
-    printf("5. Sold ASC\n");
-    printf("6. Sold DESC\n");
+    printf("1. ID ASC\n");
+    printf("2. ID DESC\n");
+    printf("3. Price ASC\n");
+    printf("4. Price DESC\n");
+    printf("5. Stock ASC\n");
+    printf("6. Stock DESC\n");
+    printf("7. Sold ASC\n");
+    printf("8. Sold DESC\n");
     printf("Choose: ");
 
     scanf("%d", &choice);
@@ -297,35 +299,47 @@ void sortProducts() {
 
                 case 1:
                     shouldSwap =
+                        ptr1->data.id >
+                        ptr1->next->data.id;
+                    break;
+
+                case 2:
+                    shouldSwap =
+                        ptr1->data.id <
+                        ptr1->next->data.id;
+                    break;
+
+                case 3:
+                    shouldSwap =
                         ptr1->data.price >
                         ptr1->next->data.price;
                     break;
 
-                case 2:
+                case 4:
                     shouldSwap =
                         ptr1->data.price <
                         ptr1->next->data.price;
                     break;
 
-                case 3:
+                case 5:
                     shouldSwap =
                         ptr1->data.stock >
                         ptr1->next->data.stock;
                     break;
 
-                case 4:
+                case 6:
                     shouldSwap =
                         ptr1->data.stock <
                         ptr1->next->data.stock;
                     break;
 
-                case 5:
+                case 7:
                     shouldSwap =
                         ptr1->data.soldCount >
                         ptr1->next->data.soldCount;
                     break;
 
-                case 6:
+                case 8:
                     shouldSwap =
                         ptr1->data.soldCount <
                         ptr1->next->data.soldCount;
@@ -355,4 +369,62 @@ void sortProducts() {
     printf("Products sorted successfully!\n");
 
     showProducts();
+}
+
+void salesReport() {
+
+    if(head == NULL) {
+        printf("No products available.\n");
+        return;
+    }
+
+    Node* temp = head;
+
+    int totalProducts = 0;
+    int totalSold = 0;
+
+    float revenue = 0;
+
+    Product bestSeller = head->data;
+
+    while(temp != NULL) {
+
+        totalProducts++;
+
+        totalSold += temp->data.soldCount;
+
+        revenue +=
+            temp->data.price *
+            temp->data.soldCount;
+
+        if(temp->data.soldCount >
+           bestSeller.soldCount) {
+
+            bestSeller = temp->data;
+        }
+
+        temp = temp->next;
+    }
+
+    printf("\n===== SALES REPORT =====\n");
+
+    printf("Total Products : %d\n",
+           totalProducts);
+
+    printf("Total Sold     : %d\n",
+           totalSold);
+
+    printf("Total Revenue  : %.2f\n",
+           revenue);
+
+    printf("\nBest Seller\n");
+
+    printf("ID     : %d\n",
+           bestSeller.id);
+
+    printf("Name   : %s\n",
+           bestSeller.name);
+
+    printf("Sold   : %d\n",
+           bestSeller.soldCount);
 }

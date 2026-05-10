@@ -4,5 +4,6 @@
 void addToCart();
 void showCart();
 void checkout();
+void processOrders();
 
 #endif

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "product.h"
 #include "file.h"
@@ -6,6 +7,20 @@
 int cartIDs[100];
 int cartQty[100];
 int cartCount = 0;
+
+typedef struct OrderNode {
+
+    int productID;
+    int quantity;
+
+    struct OrderNode* next;
+
+} OrderNode;
+
+OrderNode* front = NULL;
+OrderNode* rear = NULL;
+
+void enqueueOrder(int id, int qty);
 
 void addToCart() {
 
@@ -133,6 +148,11 @@ void checkout() {
                 temp->data.stock -= cartQty[i];
                 temp->data.soldCount += cartQty[i];
 
+                enqueueOrder(
+                    cartIDs[i],
+                    cartQty[i]
+                );
+
                 total +=
                     temp->data.price * cartQty[i];
 
@@ -149,4 +169,57 @@ void checkout() {
     saveToFile();
 
     cartCount = 0;
+}
+
+void enqueueOrder(int id, int qty) {
+
+    OrderNode* newNode =
+        malloc(sizeof(OrderNode));
+
+    if(newNode == NULL) {
+        printf("Queue allocation failed!\n");
+        return;
+    }
+
+    newNode->productID = id;
+    newNode->quantity = qty;
+    newNode->next = NULL;
+
+    if(rear == NULL) {
+
+        front = rear = newNode;
+    }
+    else {
+
+        rear->next = newNode;
+        rear = newNode;
+    }
+}
+
+void processOrders() {
+
+    if(front == NULL) {
+        printf("No pending orders.\n");
+        return;
+    }
+
+    OrderNode* temp = front;
+
+    printf("\nProcessing Order\n");
+
+    printf("Product ID : %d\n",
+           temp->productID);
+
+    printf("Quantity   : %d\n",
+           temp->quantity);
+
+    front = front->next;
+
+    if(front == NULL) {
+        rear = NULL;
+    }
+
+    free(temp);
+
+    printf("Order processed!\n");
 }

@@ -32,6 +32,7 @@ void searchProduct();
 
 void sortProducts();
 void undoDelete();
+void salesReport();
 
 void pushUndo(Product p);
 Product popUndo();
