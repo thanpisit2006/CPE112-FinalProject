@@ -1,12 +1,21 @@
 #include <stdio.h>
+
 #include "product.h"
+#include "file.h"
 
 int cartIDs[100];
 int cartQty[100];
 int cartCount = 0;
 
 void addToCart() {
-    int id, qty;
+
+    int id;
+    int qty;
+
+    if(cartCount >= 100) {
+        printf("Cart is full!\n");
+        return;
+    }
 
     if(head == NULL) {
         printf("No products available.\n");
@@ -35,21 +44,25 @@ void addToCart() {
                 return;
             }
 
-            // เช็คว่ามีใน cart แล้วไหม
             for(int i = 0; i < cartCount; i++) {
+
                 if(cartIDs[i] == id) {
+
                     cartQty[i] += qty;
+
                     printf("Updated quantity in cart!\n");
+
                     return;
                 }
             }
 
-            // เพิ่มใหม่
             cartIDs[cartCount] = id;
             cartQty[cartCount] = qty;
+
             cartCount++;
 
             printf("Added to cart!\n");
+
             return;
         }
 
@@ -60,6 +73,7 @@ void addToCart() {
 }
 
 void showCart() {
+
     float total = 0;
 
     if(cartCount == 0) {
@@ -77,7 +91,9 @@ void showCart() {
 
             if(temp->data.id == cartIDs[i]) {
 
-                float subtotal = temp->data.price * cartQty[i];
+                float subtotal =
+                    temp->data.price * cartQty[i];
+
                 total += subtotal;
 
                 printf("ID: %d | %s x%d = %.2f\n",
@@ -117,7 +133,9 @@ void checkout() {
                 temp->data.stock -= cartQty[i];
                 temp->data.soldCount += cartQty[i];
 
-                total += temp->data.price * cartQty[i];
+                total +=
+                    temp->data.price * cartQty[i];
+
                 break;
             }
 
@@ -127,6 +145,8 @@ void checkout() {
 
     printf("Total Payment: %.2f\n", total);
     printf("Purchase successful!\n");
+
+    saveToFile();
 
     cartCount = 0;
 }
