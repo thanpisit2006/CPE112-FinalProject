@@ -1,0 +1,616 @@
+data/products.txt
+```
+2 Rice 5.000000 5
+3 Water 7.000000 9
+
+```
+
+data/users.txt
+```
+Admintest 12345 1
+Peerapat 1111 0
+Thanpisit 2222 0
+Film 1111 0
+
+```
+
+include/cart.h
+```
+#ifndef CART_H
+#define CART_H
+
+void addToCart();
+void showCart();
+void checkout();
+
+#endif
+```
+
+include/file.h
+```
+#ifndef FILE_H
+#define FILE_H
+
+void saveToFile();
+void loadFromFile();
+
+#endif
+```
+
+include/product.h
+```
+#ifndef PRODUCT_H
+#define PRODUCT_H
+
+typedef struct {
+    int id;
+    char name[50];
+    float price;
+    int stock;
+    int soldCount;
+} Product;
+
+typedef struct Node {
+    Product data;
+    struct Node* next;
+} Node;
+
+extern Node* head;
+
+Node* createNode(Product p);
+
+void addProduct();
+void showProducts();
+void updateProduct();
+void deleteProduct();
+void searchProduct();
+
+#endif
+
+```
+
+include/user.h
+```
+#ifndef USER_H
+#define USER_H
+
+typedef struct {
+    char username[50];
+    char password[50];
+    int role; 
+} User;
+
+void registerUser(int role);
+int loginUser(int role);
+
+#endif
+```
+
+src/cart.c
+```
+#include <stdio.h>
+#include "product.h"
+
+int cartIDs[100];
+int cartQty[100];
+int cartCount = 0;
+
+void addToCart() {
+    int id, qty;
+
+    if(head == NULL) {
+        printf("No products available.\n");
+        return;
+    }
+
+    printf("Enter product ID: ");
+    scanf("%d", &id);
+
+    Node* temp = head;
+
+    while(temp != NULL) {
+
+        if(temp->data.id == id) {
+
+            printf("Enter quantity: ");
+            scanf("%d", &qty);
+
+            if(qty <= 0) {
+                printf("Invalid quantity!\n");
+                return;
+            }
+
+            if(qty > temp->data.stock) {
+                printf("Not enough stock!\n");
+                return;
+            }
+
+            // เช็คว่ามีใน cart แล้วไหม
+            for(int i = 0; i < cartCount; i++) {
+                if(cartIDs[i] == id) {
+                    cartQty[i] += qty;
+                    printf("Updated quantity in cart!\n");
+                    return;
+                }
+            }
+
+            // เพิ่มใหม่
+            cartIDs[cartCount] = id;
+            cartQty[cartCount] = qty;
+            cartCount++;
+
+            printf("Added to cart!\n");
+            return;
+        }
+
+        temp = temp->next;
+    }
+
+    printf("Product not found!\n");
+}
+
+void showCart() {
+    float total = 0;
+
+    if(cartCount == 0) {
+        printf("Cart is empty.\n");
+        return;
+    }
+
+    printf("\n--- Your Cart ---\n");
+
+    for(int i = 0; i < cartCount; i++) {
+
+        Node* temp = head;
+
+        while(temp != NULL) {
+
+            if(temp->data.id == cartIDs[i]) {
+
+                float subtotal = temp->data.price * cartQty[i];
+                total += subtotal;
+
+                printf("ID: %d | %s x%d = %.2f\n",
+                       temp->data.id,
+                       temp->data.name,
+                       cartQty[i],
+                       subtotal);
+
+                break;
+            }
+
+            temp = temp->next;
+        }
+    }
+
+    printf("----------------------\n");
+    printf("Total: %.2f\n", total);
+}
+
+void checkout() {
+
+    if(cartCount == 0) {
+        printf("Cart is empty.\n");
+        return;
+    }
+
+    float total = 0;
+
+    for(int i = 0; i < cartCount; i++) {
+
+        Node* temp = head;
+
+        while(temp != NULL) {
+
+            if(temp->data.id == cartIDs[i]) {
+
+                temp->data.stock -= cartQty[i];
+                temp->data.soldCount += cartQty[i];
+
+                total += temp->data.price * cartQty[i];
+                break;
+            }
+
+            temp = temp->next;
+        }
+    }
+
+    printf("Total Payment: %.2f\n", total);
+    printf("Purchase successful!\n");
+
+    cartCount = 0;
+}
+
+```
+
+src/file.c
+```
+#include <stdio.h>
+#include <stdlib.h>
+#include "product.h"
+
+void saveToFile() {
+    FILE *fp = fopen("products.txt", "w");
+    if(fp == NULL) {
+        printf("Error saving file.\n");
+        return;
+    }
+
+    Node* temp = head;
+
+    while(temp != NULL) {
+        fprintf(fp, "%d %s %f %d %d\n",
+            temp->data.id,
+            temp->data.name,
+            temp->data.price,
+            temp->data.stock,
+            temp->data.soldCount);
+
+        temp = temp->next;
+    }
+
+    fclose(fp);
+}
+
+void loadFromFile() {
+    FILE *fp = fopen("products.txt", "r");
+    if(fp == NULL) return;
+
+    Product p;
+
+    while(fscanf(fp, "%d %s %f %d %d",
+        &p.id,
+        p.name,
+        &p.price,
+        &p.stock,
+        &p.soldCount) != EOF) {
+
+        Node* newNode = createNode(p);
+
+        if(head == NULL) {
+            head = newNode;
+        } else {
+            Node* temp = head;
+            while(temp->next != NULL)
+                temp = temp->next;
+            temp->next = newNode;
+        }
+    }
+
+    fclose(fp);
+}
+```
+
+src/main.c
+```
+#include <stdio.h>
+#include "product.h"
+#include "file.h"
+#include "cart.h"
+#include "user.h"
+
+void adminMenu() {
+    int choice;
+
+    while(1) {
+        printf("\n--- Admin Menu ---\n");
+        printf("1. Add Product\n");
+        printf("2. Show Products\n");
+        printf("3. Update Product\n");
+        printf("4. Delete Product\n");
+        printf("5. Save & Back\n");
+        printf("Choose: ");
+        scanf("%d", &choice);
+
+        switch(choice) {
+            case 1: addProduct(); break;
+            case 2: showProducts(); break;
+            case 3: updateProduct(); break;
+            case 4: deleteProduct(); break;
+            case 5: 
+                saveToFile();
+                return;
+            default: 
+                printf("Invalid choice!\n");
+        }
+    }
+}
+
+void customerMenu() {
+    int choice;
+
+    while(1) {
+        printf("\n--- Customer Menu ---\n");
+        printf("1. Show Products\n");
+        printf("2. Search Product\n");
+        printf("3. Add to Cart\n");
+        printf("4. Show Cart\n");
+        printf("5. Checkout\n");
+        printf("6. Back\n");
+        printf("Choose: ");
+        scanf("%d", &choice);
+
+        switch(choice) {
+            case 1: showProducts(); break;
+            case 2: searchProduct(); break;
+            case 3: addToCart(); break;
+            case 4: showCart(); break;
+            case 5: checkout(); break;
+            case 6: return;
+            default: printf("Invalid choice!\n");
+        }
+    }
+}
+
+int main() {
+    int choice;
+
+    loadFromFile();
+
+    while(1) {
+        printf("\n=== Stock Management System ===\n");
+        printf("1. Register Customer\n");
+        printf("2. Register Admin\n");
+        printf("3. Login Customer\n");
+        printf("4. Login Admin\n");
+        printf("5. Exit\n");
+        printf("Choose: ");
+        scanf("%d", &choice);
+
+        switch(choice) {
+
+            case 1:
+                registerUser(0);  
+                break;
+
+            case 2:
+                registerUser(1);   
+                break;
+
+            case 3:
+                if(loginUser(0))  
+                    customerMenu();
+                break;
+
+            case 4:
+                if(loginUser(1))   
+                    adminMenu();
+                break;
+
+            case 5:
+                saveToFile();
+                printf("Goodbye!\n");
+                return 0;
+
+            default:
+                printf("Invalid choice!\n");
+        }
+    }
+
+    return 0;
+}
+```
+
+src/product.c
+```
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "product.h"
+
+Node* head = NULL;
+
+Node* createNode(Product p) {
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    newNode->data = p;
+    newNode->next = NULL;
+    return newNode;
+}
+
+void addProduct() {
+    Product p;
+
+    printf("Enter ID: ");
+    scanf("%d", &p.id);
+
+    printf("Enter Name: ");
+    scanf(" %[^\n]", p.name);
+
+    printf("Enter Price: ");
+    scanf("%f", &p.price);
+
+    printf("Enter Stock: ");
+    scanf("%d", &p.stock);
+
+    p.soldCount = 0;
+
+    Node* newNode = createNode(p);
+
+    if(head == NULL) {
+        head = newNode;
+    } else {
+        Node* temp = head;
+        while(temp->next != NULL)
+            temp = temp->next;
+        temp->next = newNode;
+    }
+
+    printf("Product added!\n");
+}
+
+void showProducts() {
+    Node* temp = head;
+
+    if(temp == NULL) {
+        printf("No products available.\n");
+        return;
+    }
+
+    printf("\n--- Product List ---\n");
+    while(temp != NULL) {
+        printf("ID: %d | %s | %.2f | Stock: %d | Sold: %d\n",
+            temp->data.id,
+            temp->data.name,
+            temp->data.price,
+            temp->data.stock,
+            temp->data.soldCount);
+
+        temp = temp->next;
+    }
+}
+
+void searchProduct() {
+    int id;
+    printf("Enter ID to search: ");
+    scanf("%d", &id);
+
+    Node* temp = head;
+
+    while(temp != NULL) {
+        if(temp->data.id == id) {
+            printf("Found: %s | %.2f | Stock: %d\n",
+                temp->data.name,
+                temp->data.price,
+                temp->data.stock);
+            return;
+        }
+        temp = temp->next;
+    }
+
+    printf("Product not found.\n");
+}
+
+void updateProduct() {
+    int id;
+    printf("Enter ID to update: ");
+    scanf("%d", &id);
+
+    Node* temp = head;
+
+    while(temp != NULL) {
+        if(temp->data.id == id) {
+            printf("New Price: ");
+            scanf("%f", &temp->data.price);
+
+            printf("New Stock: ");
+            scanf("%d", &temp->data.stock);
+
+            printf("Updated!\n");
+            return;
+        }
+        temp = temp->next;
+    }
+
+    printf("Product not found.\n");
+}
+
+void deleteProduct() {
+    int id;
+    printf("Enter ID to delete: ");
+    scanf("%d", &id);
+
+    Node* temp = head;
+    Node* prev = NULL;
+
+    while(temp != NULL) {
+        if(temp->data.id == id) {
+
+            if(prev == NULL)
+                head = temp->next;
+            else
+                prev->next = temp->next;
+
+            free(temp);
+            printf("Deleted!\n");
+            return;
+        }
+
+        prev = temp;
+        temp = temp->next;
+    }
+
+    printf("Product not found.\n");
+}
+```
+
+src/user.c
+```
+#include <stdio.h>
+#include <string.h>
+#include "user.h"
+
+void registerUser(int role) {
+    FILE *fp;
+    User u;
+    User temp;
+    int adminExists = 0;
+
+    fp = fopen("users.txt", "a+");
+    if(fp == NULL) {
+        printf("Error opening file.\n");
+        return;
+    }
+
+    // เช็คว่า admin มีแล้วไหม
+    rewind(fp);
+    while(fscanf(fp, "%s %s %d", temp.username, temp.password, &temp.role) != EOF) {
+        if(temp.role == 1) {
+            adminExists = 1;
+        }
+    }
+
+    if(role == 1 && adminExists) {
+        printf("Admin already exists! Only 1 admin allowed.\n");
+        fclose(fp);
+        return;
+    }
+
+    printf("Enter username: ");
+    scanf("%s", u.username);
+
+    printf("Enter password: ");
+    scanf("%s", u.password);
+
+    u.role = role;
+
+    fprintf(fp, "%s %s %d\n", u.username, u.password, u.role);
+
+    printf("Register successful!\n");
+
+    fclose(fp);
+}
+
+int loginUser(int role) {
+    FILE *fp;
+    User u;
+    char username[50], password[50];
+
+    fp = fopen("users.txt", "r");
+    if(fp == NULL) {
+        printf("No users found.\n");
+        return 0;
+    }
+
+    printf("Username: ");
+    scanf("%s", username);
+
+    printf("Password: ");
+    scanf("%s", password);
+
+    while(fscanf(fp, "%s %s %d", u.username, u.password, &u.role) != EOF) {
+        if(strcmp(username, u.username) == 0 &&
+           strcmp(password, u.password) == 0 &&
+           u.role == role) {
+
+            fclose(fp);
+            printf("Login successful!\n");
+            return 1;
+        }
+    }
+
+    fclose(fp);
+    printf("Login failed!\n");
+    return 0;
+}
+```
+
