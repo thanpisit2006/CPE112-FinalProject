@@ -5,3 +5,6 @@ hash id
 modulo hash ต้องระบุ limit item (optimal)
 id primary key
 queue custumer a b c
+
+
+verified commit test
