@@ -4,6 +4,8 @@
 
 UserNode* hashTable[TABLE_SIZE];
 
+char currentUser[50];
+
 void registerUser(int role) {
 
     FILE *fp;
@@ -106,9 +108,11 @@ int loginUser(int role) {
            u.role == role) {
 
             fclose(fp);
-
+            
             printf("Login successful!\n");
 
+            strcpy(currentUser, username);
+            
             return 1;
         }
     }
