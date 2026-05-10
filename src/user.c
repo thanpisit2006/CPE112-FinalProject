@@ -1,10 +1,51 @@
 #include <stdio.h>
 #include <string.h>
 #include "user.h"
+#include <stdlib.h>
 
 UserNode* hashTable[TABLE_SIZE];
 
 char currentUser[50];
+
+void insertUserToHash(User u) {
+
+    int index = hash(u.username);
+
+    UserNode* newNode =
+        malloc(sizeof(UserNode));
+
+    if(newNode == NULL) {
+        return;
+    }
+
+    newNode->data = u;
+
+    newNode->next = hashTable[index];
+
+    hashTable[index] = newNode;
+}
+
+User* searchUser(char* username) {
+
+    int index = hash(username);
+
+    UserNode* temp =
+        hashTable[index];
+
+    while(temp != NULL) {
+
+        if(strcmp(
+            temp->data.username,
+            username) == 0) {
+
+            return &temp->data;
+        }
+
+        temp = temp->next;
+    }
+
+    return NULL;
+}
 
 void registerUser(int role) {
 
@@ -64,6 +105,8 @@ void registerUser(int role) {
 
     u.role = role;
 
+    insertUserToHash(u);
+
     fprintf(fp,
             "%s %s %d\n",
             u.username,
@@ -77,19 +120,8 @@ void registerUser(int role) {
 
 int loginUser(int role) {
 
-    FILE *fp;
-
-    User u;
-
     char username[50];
     char password[50];
-
-    fp = fopen("data/users.txt", "r");
-
-    if(fp == NULL) {
-        printf("No users found.\n");
-        return 0;
-    }
 
     printf("Username: ");
     scanf("%49s", username);
@@ -97,27 +129,21 @@ int loginUser(int role) {
     printf("Password: ");
     scanf("%49s", password);
 
-    while(fscanf(fp,
-                 "%49s %49s %d",
-                 u.username,
-                 u.password,
-                 &u.role) == 3) {
+    User* user =
+        searchUser(username);
 
-        if(strcmp(username, u.username) == 0 &&
-           strcmp(password, u.password) == 0 &&
-           u.role == role) {
+    if(user != NULL &&
+       strcmp(user->password,
+              password) == 0 &&
+       user->role == role) {
 
-            fclose(fp);
-            
-            printf("Login successful!\n");
+        strcpy(currentUser,
+               username);
 
-            strcpy(currentUser, username);
-            
-            return 1;
-        }
+        printf("Login successful!\n");
+
+        return 1;
     }
-
-    fclose(fp);
 
     printf("Login failed!\n");
 
@@ -133,4 +159,27 @@ int hash(char* str) {
     }
 
     return sum % TABLE_SIZE;
+}
+
+void loadUsersToHash() {
+
+    FILE* fp =
+        fopen("data/users.txt", "r");
+
+    if(fp == NULL) {
+        return;
+    }
+
+    User u;
+
+    while(fscanf(fp,
+                 "%49s %49s %d",
+                 u.username,
+                 u.password,
+                 &u.role) == 3) {
+
+        insertUserToHash(u);
+    }
+
+    fclose(fp);
 }

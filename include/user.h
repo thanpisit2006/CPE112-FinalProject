@@ -21,3 +21,11 @@ void registerUser(int role);
 int loginUser(int role);
 
 #endif
+
+int hash(char* str);
+
+void insertUserToHash(User u);
+
+User* searchUser(char* username);
+
+void loadUsersToHash();

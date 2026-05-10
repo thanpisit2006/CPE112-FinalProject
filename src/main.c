@@ -128,6 +128,8 @@ int main() {
 
     loadFromFile();
 
+    loadUsersToHash();
+
     while(1) {
 
         printf("\n=== Stock Management System ===\n");
