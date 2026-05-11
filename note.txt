@@ -81,7 +81,7 @@ git pull
 
 ทุกครั้งหลังแก้เสร็จ
 git add .
-git commit -m "fix hash table bug and add search by product name feature"
+git commit -m "add a condition that can't input negetive products qty"
 git push
 
 ถ้าจะดูประวัติ commit
@@ -131,11 +131,11 @@ run:
 
 ./data/products.txt
 ```
-1 Egg 67.00 23 22
-2 Rice 5.00 1 4
-3 Water 7.00 1 8
-4 Mushroom 34.00 15 0
-5 Orange 10.00 5 0
+1|Egg|67.00|23|22
+2|Rice|5.00|1|4
+3|Water|7.00|1|8
+4|Mushroom|34.00|15|0
+5|Orange Juice|10.00|5|0
 
 ```
 
@@ -355,6 +355,13 @@ void addToCart() {
             CartNode* newNode =
                 malloc(sizeof(CartNode));
 
+            if(newNode == NULL) {
+
+                printf("Memory allocation failed!\n");
+
+                return;
+            }
+
             newNode->id = id;
             newNode->qty = qty;
             newNode->next = cartHead;
@@ -431,6 +438,13 @@ void checkout(char* username) {
 
     Order* newOrder =
         malloc(sizeof(Order));
+
+    if(newOrder == NULL) {
+
+        printf("Memory allocation failed!\n");
+
+        return;
+    }
 
     strcpy(newOrder->username, username);
 
@@ -683,7 +697,7 @@ void saveToFile() {
     while(temp != NULL) {
 
         fprintf(fp,
-                "%d %s %.2f %d %d\n",
+                "%d|%s|%.2f|%d|%d\n",
                 temp->data.id,
                 temp->data.name,
                 temp->data.price,
@@ -707,12 +721,12 @@ void loadFromFile() {
     Product p;
 
     while(fscanf(fp,
-                 "%d %49s %f %d %d",
-                 &p.id,
-                 p.name,
-                 &p.price,
-                 &p.stock,
-                 &p.soldCount) == 5) {
+                "%d|%49[^|]|%f|%d|%d",
+                &p.id,
+                p.name,
+                &p.price,
+                &p.stock,
+                &p.soldCount) == 5) {
 
         Node* newNode = createNode(p);
 
@@ -770,7 +784,14 @@ void adminMenu() {
 
         printf("Choose: ");
 
-        scanf("%d", &choice);
+        if(scanf("%d", &choice) != 1) {
+
+            printf("Invalid input!\n");
+
+            while(getchar() != '\n');
+
+            continue;
+        }
 
         switch(choice) {
 
@@ -844,7 +865,14 @@ void customerMenu() {
 
         printf("Choose: ");
 
-        scanf("%d", &choice);
+        if(scanf("%d", &choice) != 1) {
+
+            printf("Invalid input!\n");
+
+            while(getchar() != '\n');
+
+            continue;
+        }
 
         switch(choice) {
 
@@ -905,7 +933,14 @@ int main() {
         printf("5. Exit\n");
         printf("Choose: ");
 
-        scanf("%d", &choice);
+        if(scanf("%d", &choice) != 1) {
+
+            printf("Invalid input!\n");
+
+            while(getchar() != '\n');
+
+            continue;
+        }
 
         switch(choice) {
 
@@ -1092,11 +1127,14 @@ void showProducts() {
         return;
     }
 
-    printf("\n--- Product List ---\n");
+    printf("\n");
+    printf("====================================================\n");
+    printf("                    PRODUCT LIST                    \n");
+    printf("====================================================\n");
 
     while(temp != NULL) {
 
-        printf("ID: %d | %s | %.2f | Stock: %d | Sold: %d\n",
+        printf("ID: %-3d Name: %-15s Price: %-8.2f Stock: %-5d Sold: %-5d\n",
                temp->data.id,
                temp->data.name,
                temp->data.price,
@@ -1201,11 +1239,31 @@ void updateProduct() {
 
         if(temp->data.id == id) {
 
+            float newPrice;
+            int newStock;
+
             printf("New Price: ");
-            scanf("%f", &temp->data.price);
+            scanf("%f", &newPrice);
+
+            if(newPrice <= 0) {
+
+                printf("Invalid price!\n");
+
+                return;
+            }
 
             printf("New Stock: ");
-            scanf("%d", &temp->data.stock);
+            scanf("%d", &newStock);
+
+            if(newStock < 0) {
+
+                printf("Invalid stock!\n");
+
+                return;
+            }
+
+            temp->data.price = newPrice;
+            temp->data.stock = newStock;
 
             saveToFile();
 
@@ -1462,9 +1520,9 @@ void recommendProducts() {
         temp = temp->next;
     }
 
-    if(!found) {
+    if(!found || bestSeller.soldCount == 0) {
 
-        printf("No recommended products.\n");
+        printf("No sales data for recommendation yet.\n");
 
         return;
     }

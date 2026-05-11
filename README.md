@@ -1,10 +1,88 @@
 # cpe112
-CPE112 Final Project - Smart Inventory and Recommendation System implemented in C
 
-hash id
-modulo hash ต้องระบุ limit item (optimal)
-id primary key
-queue custumer a b c
+Smart Inventory and Recommendation System implemented in C
+
+---
+
+## overview
+
+This project is a console-based inventory management system written in C.
+
+The system supports:
+
+- product management
+- customer and admin login
+- shopping cart system
+- order queue system
+- sales report
+- recommendation system
+- undo delete feature
+- file persistence
+- hash table for user management
+
+---
+
+## features
+
+### admin features
+
+- add product
+- update product
+- delete product
+- undo deleted product
+- sort products
+- process customer orders
+- view sales report
+- manage stock
+
+### customer features
+
+- register and login
+- browse products
+- search product by id
+- search product by name
+- add product to cart
+- checkout
+- view recommended products
+
+---
+
+## data structures used
+
+| data structure | usage |
+|---|---|
+| linked list | product storage |
+| stack | undo deleted products |
+| queue | customer orders |
+| hash table | user management |
+
+---
+
+## project structure
+
+```text
+.
+├── data/
+│   ├── products.txt
+│   ├── users.txt
+│   ├── orders.txt
+│   └── history.txt
+│
+├── include/
+│   ├── cart.h
+│   ├── file.h
+│   ├── product.h
+│   └── user.h
+│
+├── src/
+│   ├── cart.c
+│   ├── file.c
+│   ├── main.c
+│   ├── product.c
+│   └── user.c
+│
+├── .gitignore
+└── README.md
 
 
 verified commit test
@@ -17,7 +95,7 @@ git pull
 
 ทุกครั้งหลังแก้เสร็จ
 git add .
-git commit -m "add a condition that can't input negetive products qty"
+git commit -m "editing README.md"
 git push
 
 ถ้าจะดูประวัติ commit
