@@ -147,11 +147,14 @@ void showProducts() {
         return;
     }
 
-    printf("\n--- Product List ---\n");
+    printf("\n");
+    printf("====================================================\n");
+    printf("                    PRODUCT LIST                    \n");
+    printf("====================================================\n");
 
     while(temp != NULL) {
 
-        printf("ID: %d | %s | %.2f | Stock: %d | Sold: %d\n",
+        printf("ID: %-3d Name: %-15s Price: %-8.2f Stock: %-5d Sold: %-5d\n",
                temp->data.id,
                temp->data.name,
                temp->data.price,
@@ -256,11 +259,31 @@ void updateProduct() {
 
         if(temp->data.id == id) {
 
+            float newPrice;
+            int newStock;
+
             printf("New Price: ");
-            scanf("%f", &temp->data.price);
+            scanf("%f", &newPrice);
+
+            if(newPrice <= 0) {
+
+                printf("Invalid price!\n");
+
+                return;
+            }
 
             printf("New Stock: ");
-            scanf("%d", &temp->data.stock);
+            scanf("%d", &newStock);
+
+            if(newStock < 0) {
+
+                printf("Invalid stock!\n");
+
+                return;
+            }
+
+            temp->data.price = newPrice;
+            temp->data.stock = newStock;
 
             saveToFile();
 
@@ -517,9 +540,9 @@ void recommendProducts() {
         temp = temp->next;
     }
 
-    if(!found) {
+    if(!found || bestSeller.soldCount == 0) {
 
-        printf("No recommended products.\n");
+        printf("No sales data for recommendation yet.\n");
 
         return;
     }

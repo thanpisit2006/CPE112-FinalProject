@@ -16,7 +16,7 @@ void saveToFile() {
     while(temp != NULL) {
 
         fprintf(fp,
-                "%d %s %.2f %d %d\n",
+                "%d|%s|%.2f|%d|%d\n",
                 temp->data.id,
                 temp->data.name,
                 temp->data.price,
@@ -40,12 +40,12 @@ void loadFromFile() {
     Product p;
 
     while(fscanf(fp,
-                 "%d %49s %f %d %d",
-                 &p.id,
-                 p.name,
-                 &p.price,
-                 &p.stock,
-                 &p.soldCount) == 5) {
+                "%d|%49[^|]|%f|%d|%d",
+                &p.id,
+                p.name,
+                &p.price,
+                &p.stock,
+                &p.soldCount) == 5) {
 
         Node* newNode = createNode(p);
 

@@ -1,5 +1,5 @@
-1 Egg 67.00 23 22
-2 Rice 5.00 1 4
-3 Water 7.00 1 8
-4 Mushroom 34.00 15 0
-5 Orange 10.00 5 0
+1|Egg|67.00|23|22
+2|Rice|5.00|1|4
+3|Water|7.00|1|8
+4|Mushroom|34.00|15|0
+5|Orange Juice|10.00|5|0

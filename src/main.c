@@ -31,7 +31,14 @@ void adminMenu() {
 
         printf("Choose: ");
 
-        scanf("%d", &choice);
+        if(scanf("%d", &choice) != 1) {
+
+            printf("Invalid input!\n");
+
+            while(getchar() != '\n');
+
+            continue;
+        }
 
         switch(choice) {
 
@@ -105,7 +112,14 @@ void customerMenu() {
 
         printf("Choose: ");
 
-        scanf("%d", &choice);
+        if(scanf("%d", &choice) != 1) {
+
+            printf("Invalid input!\n");
+
+            while(getchar() != '\n');
+
+            continue;
+        }
 
         switch(choice) {
 
@@ -166,7 +180,14 @@ int main() {
         printf("5. Exit\n");
         printf("Choose: ");
 
-        scanf("%d", &choice);
+        if(scanf("%d", &choice) != 1) {
+
+            printf("Invalid input!\n");
+
+            while(getchar() != '\n');
+
+            continue;
+        }
 
         switch(choice) {
 

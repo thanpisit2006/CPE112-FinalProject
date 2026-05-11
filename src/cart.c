@@ -78,6 +78,13 @@ void addToCart() {
             CartNode* newNode =
                 malloc(sizeof(CartNode));
 
+            if(newNode == NULL) {
+
+                printf("Memory allocation failed!\n");
+
+                return;
+            }
+
             newNode->id = id;
             newNode->qty = qty;
             newNode->next = cartHead;
@@ -154,6 +161,13 @@ void checkout(char* username) {
 
     Order* newOrder =
         malloc(sizeof(Order));
+
+    if(newOrder == NULL) {
+
+        printf("Memory allocation failed!\n");
+
+        return;
+    }
 
     strcpy(newOrder->username, username);
 

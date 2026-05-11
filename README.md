@@ -17,7 +17,7 @@ git pull
 
 ทุกครั้งหลังแก้เสร็จ
 git add .
-git commit -m "case insensitive in search by name feature"
+git commit -m "add a condition that can't input negetive products qty"
 git push
 
 ถ้าจะดูประวัติ commit
