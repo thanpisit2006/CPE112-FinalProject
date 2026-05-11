@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "product.h"
 #include "file.h"
@@ -96,7 +97,7 @@ void addProduct() {
     }
 
     printf("Enter Name: ");
-    scanf("%49s", p.name);
+    scanf(" %[^\n]", p.name);
 
     printf("Enter Price: ");
     scanf("%f", &p.price);
@@ -188,19 +189,40 @@ void searchProduct() {
     printf("Product not found.\n");
 }
 
+void toLowerCase(char* str) {
+
+    for(int i = 0; str[i]; i++) {
+
+        str[i] =
+            tolower(str[i]);
+    }
+}
+
 void searchProductByName() {
 
     char keyword[50];
+
     int found = 0;
 
     printf("Enter product name: ");
-    scanf("%49s", keyword);
+
+    scanf(" %[^\n]", keyword);
+
+    toLowerCase(keyword);
 
     Node* temp = head;
 
     while(temp != NULL) {
 
-        if(strstr(temp->data.name, keyword) != NULL) {
+        char productName[50];
+
+        strcpy(productName,
+               temp->data.name);
+
+        toLowerCase(productName);
+
+        if(strstr(productName,
+                  keyword) != NULL) {
 
             printf("ID: %d | %s | %.2f | Stock: %d | Sold: %d\n",
                    temp->data.id,
@@ -216,6 +238,7 @@ void searchProductByName() {
     }
 
     if(!found) {
+
         printf("No matching products found.\n");
     }
 }
@@ -472,22 +495,41 @@ void recommendProducts() {
 
     Node* temp = head;
 
-    Product bestSeller = head->data;
+    Product bestSeller;
+
+    int found = 0;
 
     while(temp != NULL) {
 
-        if(temp->data.soldCount >
-           bestSeller.soldCount) {
+        if(temp->data.stock > 0) {
 
-            bestSeller = temp->data;
+            if(!found ||
+               temp->data.soldCount >
+               bestSeller.soldCount) {
+
+                bestSeller =
+                    temp->data;
+
+                found = 1;
+            }
         }
 
         temp = temp->next;
     }
 
-    printf("\n===== RECOMMENDED PRODUCT =====\n");
+    if(!found) {
 
-    printf("Best Seller:\n");
+        printf("No recommended products.\n");
+
+        return;
+    }
+
+    printf("\n");
+    printf("===================================\n");
+    printf("        RECOMMENDED PRODUCT        \n");
+    printf("===================================\n");
+
+    printf("Best Seller Available Now\n\n");
 
     printf("ID: %d\n",
            bestSeller.id);
@@ -498,6 +540,11 @@ void recommendProducts() {
     printf("Price: %.2f\n",
            bestSeller.price);
 
+    printf("Stock: %d\n",
+           bestSeller.stock);
+
     printf("Sold: %d\n",
            bestSeller.soldCount);
+
+    printf("===================================\n");
 }

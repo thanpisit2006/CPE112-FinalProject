@@ -11,7 +11,11 @@ void adminMenu() {
 
     while(1) {
 
-        printf("\n===== ADMIN MENU =====\n");
+        printf("\n");
+        printf("===================================\n");
+        printf("            ADMIN MENU            \n");
+        printf("===================================\n");
+
         printf("1. Add Product\n");
         printf("2. Show Products\n");
         printf("3. Update Product\n");
@@ -21,7 +25,10 @@ void adminMenu() {
         printf("7. Sales Report\n");
         printf("8. Show Orders\n");
         printf("9. Process Next Order\n");
-        printf("10. Save & Back\n");
+        printf("10. Save & Logout\n");
+
+        printf("===================================\n");
+
         printf("Choose: ");
 
         scanf("%d", &choice);
@@ -80,15 +87,22 @@ void customerMenu() {
 
     while(1) {
 
-        printf("\n--- Customer Menu ---\n");
-        printf("1. Show Products\n");
+        printf("\n");
+        printf("===================================\n");
+        printf("          CUSTOMER MENU           \n");
+        printf("===================================\n");
+
+        printf("1. View All Products\n");
         printf("2. Search Product By ID\n");
         printf("3. Search Product By Name\n");
-        printf("4. Add to Cart\n");
-        printf("5. Show Cart\n");
+        printf("4. Add Product To Cart\n");
+        printf("5. View Shopping Cart\n");
         printf("6. Checkout\n");
-        printf("7. Recommend Products\n");
-        printf("8. Back\n");
+        printf("7. Recommended Products\n");
+        printf("8. Logout\n");
+
+        printf("===================================\n");
+
         printf("Choose: ");
 
         scanf("%d", &choice);

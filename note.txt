@@ -81,7 +81,7 @@ git pull
 
 ทุกครั้งหลังแก้เสร็จ
 git add .
-git commit -m "fix bug and testing"
+git commit -m "fix hash table bug and add search by product name feature"
 git push
 
 ถ้าจะดูประวัติ commit
@@ -117,6 +117,11 @@ gcc src/*.c -Iinclude -Wall -Wextra -o app
 
 run:
 ./app
+```
+
+./data/history.txt
+```
+
 ```
 
 ./data/orders.txt
@@ -252,12 +257,10 @@ typedef struct UserNode {
 } UserNode;
 
 extern char currentUser[50];
-extern UserNode* hashTable[TABLE_SIZE];   
+extern UserNode* hashTable[TABLE_SIZE];
 
 void registerUser(int role);
 int loginUser(int role);
-
-#endif
 
 int hash(char* str);
 
@@ -266,6 +269,8 @@ void insertUserToHash(User u);
 User* searchUser(char* username);
 
 void loadUsersToHash();
+
+#endif
 ```
 
 ./src/cart.c
@@ -328,6 +333,14 @@ void addToCart() {
             while(cartTemp != NULL) {
 
                 if(cartTemp->id == id) {
+
+                    if(cartTemp->qty + qty >
+                    temp->data.stock) {
+
+                        printf("Stock exceeded!\n");
+
+                        return;
+                    }
 
                     cartTemp->qty += qty;
 
@@ -496,6 +509,25 @@ void showOrders() {
     }
 }
 
+void saveHistory(char* username,
+                 int id,
+                 int qty) {
+
+    FILE* fp =
+        fopen("data/history.txt", "a");
+
+    if(fp == NULL)
+        return;
+
+    fprintf(fp,
+            "%s %d %d\n",
+            username,
+            id,
+            qty);
+
+    fclose(fp);
+}
+
 void processOrder() {
 
     if(front == NULL) {
@@ -516,11 +548,19 @@ void processOrder() {
             if(p->data.id ==
                temp->ids[i]) {
 
-                p->data.stock -=
-                    temp->qty[i];
+                if(p->data.stock >= temp->qty[i]) {
 
-                p->data.soldCount +=
-                    temp->qty[i];
+                    p->data.stock -= temp->qty[i];
+
+                    p->data.soldCount += temp->qty[i];
+
+                    saveHistory(temp->username, temp->ids[i], temp->qty[i]);
+                }
+                else {
+
+                    printf("Not enough stock for %s\n",
+                        p->data.name);
+                }
 
                 break;
             }
@@ -710,7 +750,11 @@ void adminMenu() {
 
     while(1) {
 
-        printf("\n===== ADMIN MENU =====\n");
+        printf("\n");
+        printf("===================================\n");
+        printf("            ADMIN MENU            \n");
+        printf("===================================\n");
+
         printf("1. Add Product\n");
         printf("2. Show Products\n");
         printf("3. Update Product\n");
@@ -720,7 +764,10 @@ void adminMenu() {
         printf("7. Sales Report\n");
         printf("8. Show Orders\n");
         printf("9. Process Next Order\n");
-        printf("10. Save & Back\n");
+        printf("10. Save & Logout\n");
+
+        printf("===================================\n");
+
         printf("Choose: ");
 
         scanf("%d", &choice);
@@ -779,15 +826,22 @@ void customerMenu() {
 
     while(1) {
 
-        printf("\n--- Customer Menu ---\n");
-        printf("1. Show Products\n");
+        printf("\n");
+        printf("===================================\n");
+        printf("          CUSTOMER MENU           \n");
+        printf("===================================\n");
+
+        printf("1. View All Products\n");
         printf("2. Search Product By ID\n");
         printf("3. Search Product By Name\n");
-        printf("4. Add to Cart\n");
-        printf("5. Show Cart\n");
+        printf("4. Add Product To Cart\n");
+        printf("5. View Shopping Cart\n");
         printf("6. Checkout\n");
-        printf("7. Recommend Products\n");
-        printf("8. Back\n");
+        printf("7. Recommended Products\n");
+        printf("8. Logout\n");
+
+        printf("===================================\n");
+
         printf("Choose: ");
 
         scanf("%d", &choice);
@@ -892,6 +946,7 @@ int main() {
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "product.h"
 #include "file.h"
@@ -987,7 +1042,7 @@ void addProduct() {
     }
 
     printf("Enter Name: ");
-    scanf("%49s", p.name);
+    scanf(" %[^\n]", p.name);
 
     printf("Enter Price: ");
     scanf("%f", &p.price);
@@ -1079,19 +1134,40 @@ void searchProduct() {
     printf("Product not found.\n");
 }
 
+void toLowerCase(char* str) {
+
+    for(int i = 0; str[i]; i++) {
+
+        str[i] =
+            tolower(str[i]);
+    }
+}
+
 void searchProductByName() {
 
     char keyword[50];
+
     int found = 0;
 
     printf("Enter product name: ");
-    scanf("%49s", keyword);
+
+    scanf(" %[^\n]", keyword);
+
+    toLowerCase(keyword);
 
     Node* temp = head;
 
     while(temp != NULL) {
 
-        if(strstr(temp->data.name, keyword) != NULL) {
+        char productName[50];
+
+        strcpy(productName,
+               temp->data.name);
+
+        toLowerCase(productName);
+
+        if(strstr(productName,
+                  keyword) != NULL) {
 
             printf("ID: %d | %s | %.2f | Stock: %d | Sold: %d\n",
                    temp->data.id,
@@ -1107,6 +1183,7 @@ void searchProductByName() {
     }
 
     if(!found) {
+
         printf("No matching products found.\n");
     }
 }
@@ -1363,22 +1440,41 @@ void recommendProducts() {
 
     Node* temp = head;
 
-    Product bestSeller = head->data;
+    Product bestSeller;
+
+    int found = 0;
 
     while(temp != NULL) {
 
-        if(temp->data.soldCount >
-           bestSeller.soldCount) {
+        if(temp->data.stock > 0) {
 
-            bestSeller = temp->data;
+            if(!found ||
+               temp->data.soldCount >
+               bestSeller.soldCount) {
+
+                bestSeller =
+                    temp->data;
+
+                found = 1;
+            }
         }
 
         temp = temp->next;
     }
 
-    printf("\n===== RECOMMENDED PRODUCT =====\n");
+    if(!found) {
 
-    printf("Best Seller:\n");
+        printf("No recommended products.\n");
+
+        return;
+    }
+
+    printf("\n");
+    printf("===================================\n");
+    printf("        RECOMMENDED PRODUCT        \n");
+    printf("===================================\n");
+
+    printf("Best Seller Available Now\n\n");
 
     printf("ID: %d\n",
            bestSeller.id);
@@ -1389,8 +1485,13 @@ void recommendProducts() {
     printf("Price: %.2f\n",
            bestSeller.price);
 
+    printf("Stock: %d\n",
+           bestSeller.stock);
+
     printf("Sold: %d\n",
            bestSeller.soldCount);
+
+    printf("===================================\n");
 }
 ```
 

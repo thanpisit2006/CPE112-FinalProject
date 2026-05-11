@@ -15,12 +15,10 @@ typedef struct UserNode {
 } UserNode;
 
 extern char currentUser[50];
-extern UserNode* hashTable[TABLE_SIZE];   
+extern UserNode* hashTable[TABLE_SIZE];
 
 void registerUser(int role);
 int loginUser(int role);
-
-#endif
 
 int hash(char* str);
 
@@ -29,3 +27,5 @@ void insertUserToHash(User u);
 User* searchUser(char* username);
 
 void loadUsersToHash();
+
+#endif

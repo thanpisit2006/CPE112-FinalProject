@@ -17,7 +17,7 @@ git pull
 
 ทุกครั้งหลังแก้เสร็จ
 git add .
-git commit -m "fix hash table bug and add search by product name feature"
+git commit -m "case insensitive in search by name feature"
 git push
 
 ถ้าจะดูประวัติ commit

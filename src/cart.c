@@ -57,6 +57,14 @@ void addToCart() {
 
                 if(cartTemp->id == id) {
 
+                    if(cartTemp->qty + qty >
+                    temp->data.stock) {
+
+                        printf("Stock exceeded!\n");
+
+                        return;
+                    }
+
                     cartTemp->qty += qty;
 
                     printf("Updated cart quantity!\n");
@@ -224,6 +232,25 @@ void showOrders() {
     }
 }
 
+void saveHistory(char* username,
+                 int id,
+                 int qty) {
+
+    FILE* fp =
+        fopen("data/history.txt", "a");
+
+    if(fp == NULL)
+        return;
+
+    fprintf(fp,
+            "%s %d %d\n",
+            username,
+            id,
+            qty);
+
+    fclose(fp);
+}
+
 void processOrder() {
 
     if(front == NULL) {
@@ -244,11 +271,19 @@ void processOrder() {
             if(p->data.id ==
                temp->ids[i]) {
 
-                p->data.stock -=
-                    temp->qty[i];
+                if(p->data.stock >= temp->qty[i]) {
 
-                p->data.soldCount +=
-                    temp->qty[i];
+                    p->data.stock -= temp->qty[i];
+
+                    p->data.soldCount += temp->qty[i];
+
+                    saveHistory(temp->username, temp->ids[i], temp->qty[i]);
+                }
+                else {
+
+                    printf("Not enough stock for %s\n",
+                        p->data.name);
+                }
 
                 break;
             }
