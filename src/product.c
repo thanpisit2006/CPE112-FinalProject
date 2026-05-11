@@ -188,6 +188,38 @@ void searchProduct() {
     printf("Product not found.\n");
 }
 
+void searchProductByName() {
+
+    char keyword[50];
+    int found = 0;
+
+    printf("Enter product name: ");
+    scanf("%49s", keyword);
+
+    Node* temp = head;
+
+    while(temp != NULL) {
+
+        if(strstr(temp->data.name, keyword) != NULL) {
+
+            printf("ID: %d | %s | %.2f | Stock: %d | Sold: %d\n",
+                   temp->data.id,
+                   temp->data.name,
+                   temp->data.price,
+                   temp->data.stock,
+                   temp->data.soldCount);
+
+            found = 1;
+        }
+
+        temp = temp->next;
+    }
+
+    if(!found) {
+        printf("No matching products found.\n");
+    }
+}
+
 void updateProduct() {
 
     int id;
@@ -426,5 +458,46 @@ void salesReport() {
            bestSeller.name);
 
     printf("Sold   : %d\n",
+           bestSeller.soldCount);
+}
+
+void recommendProducts() {
+
+    if(head == NULL) {
+
+        printf("No products.\n");
+
+        return;
+    }
+
+    Node* temp = head;
+
+    Product bestSeller = head->data;
+
+    while(temp != NULL) {
+
+        if(temp->data.soldCount >
+           bestSeller.soldCount) {
+
+            bestSeller = temp->data;
+        }
+
+        temp = temp->next;
+    }
+
+    printf("\n===== RECOMMENDED PRODUCT =====\n");
+
+    printf("Best Seller:\n");
+
+    printf("ID: %d\n",
+           bestSeller.id);
+
+    printf("Name: %s\n",
+           bestSeller.name);
+
+    printf("Price: %.2f\n",
+           bestSeller.price);
+
+    printf("Sold: %d\n",
            bestSeller.soldCount);
 }

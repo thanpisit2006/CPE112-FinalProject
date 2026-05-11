@@ -72,14 +72,65 @@ queue custumer a b c
 
 
 verified commit test
+
+
+GitHub workflow ที่ควรใช้
+
+ก่อนเริ่มงาน
+git pull
+
+ทุกครั้งหลังแก้เสร็จ
+git add .
+git commit -m "fix bug and testing"
+git push
+
+ถ้าจะดูประวัติ commit
+git log --oneline
+
+ถ้าต้องการ revert กลับ commit เก่า
+ดู commit id:
+git log --oneline
+
+แล้ว:
+git checkout <commit-id>
+
+ดึงข้อมูลโค้ดจากทุกไฟล์
+rm -f note.txt
+
+find . -type f \
+! -name "note.txt" \
+! -path "./.git/*" \
+! -name "*.o" \
+! -name "*.exe" \
+! -name "app" \
+| sort | while read file
+do
+    echo "$file" >> note.txt
+    echo '```' >> note.txt
+    cat "$file" >> note.txt
+    echo -e '\n```' >> note.txt
+    echo >> note.txt
+done
+
+compile:
+gcc src/*.c -Iinclude -Wall -Wextra -o app
+
+run:
+./app
+```
+
+./data/orders.txt
+```
+
 ```
 
 ./data/products.txt
 ```
 1 Egg 67.00 23 22
-2 Rice 5.00 4 1
+2 Rice 5.00 1 4
 3 Water 7.00 1 8
 4 Mushroom 34.00 15 0
+5 Orange 10.00 5 0
 
 ```
 
@@ -92,6 +143,7 @@ Film 1111 0
 Anna plovesom 0
 p plovesom 0
 Lukaku 7777 0
+bank 1234 0
 
 ```
 
@@ -100,11 +152,26 @@ Lukaku 7777 0
 #ifndef CART_H
 #define CART_H
 
+typedef struct CartNode {
+
+    int id;
+    int qty;
+
+    struct CartNode* next;
+
+} CartNode;
+
+extern CartNode* cartHead;
+
 void addToCart();
 void showCart();
 void checkout(char* username);
+
 void showOrders();
 void processOrder();
+
+void saveOrdersToFile();
+void loadOrdersFromFile();
 
 #endif
 ```
@@ -153,6 +220,8 @@ void showProducts();
 void updateProduct();
 void deleteProduct();
 void searchProduct();
+void searchProductByName();
+void recommendProducts();
 
 void sortProducts();
 void undoDelete();
@@ -189,6 +258,14 @@ void registerUser(int role);
 int loginUser(int role);
 
 #endif
+
+int hash(char* str);
+
+void insertUserToHash(User u);
+
+User* searchUser(char* username);
+
+void loadUsersToHash();
 ```
 
 ./src/cart.c
@@ -196,33 +273,33 @@ int loginUser(int role);
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "product.h"
 #include "file.h"
+#include "cart.h"
 
-int cartIDs[100];
-int cartQty[100];
-int cartCount = 0;
+CartNode* cartHead = NULL;
 
 typedef struct Order {
+
     char username[50];
+
     int ids[100];
     int qty[100];
+
     int count;
+
     struct Order* next;
+
 } Order;
 
 Order* front = NULL;
 Order* rear = NULL;
 
-
 void addToCart() {
 
-    int id, qty;
-
-    if(head == NULL) {
-        printf("No products available.\n");
-        return;
-    }
+    int id;
+    int qty;
 
     printf("Enter product ID: ");
     scanf("%d", &id);
@@ -246,19 +323,33 @@ void addToCart() {
                 return;
             }
 
-            for(int i = 0; i < cartCount; i++) {
-                if(cartIDs[i] == id) {
-                    cartQty[i] += qty;
-                    printf("Updated quantity in cart!\n");
+            CartNode* cartTemp = cartHead;
+
+            while(cartTemp != NULL) {
+
+                if(cartTemp->id == id) {
+
+                    cartTemp->qty += qty;
+
+                    printf("Updated cart quantity!\n");
+
                     return;
                 }
+
+                cartTemp = cartTemp->next;
             }
 
-            cartIDs[cartCount] = id;
-            cartQty[cartCount] = qty;
-            cartCount++;
+            CartNode* newNode =
+                malloc(sizeof(CartNode));
+
+            newNode->id = id;
+            newNode->qty = qty;
+            newNode->next = cartHead;
+
+            cartHead = newNode;
 
             printf("Added to cart!\n");
+
             return;
         }
 
@@ -268,33 +359,39 @@ void addToCart() {
     printf("Product not found!\n");
 }
 
-
 void showCart() {
 
-    float total = 0;
+    if(cartHead == NULL) {
 
-    if(cartCount == 0) {
         printf("Cart is empty.\n");
+
         return;
     }
 
-    printf("\n--- Your Cart ---\n");
+    float total = 0;
 
-    for(int i = 0; i < cartCount; i++) {
+    CartNode* cartTemp = cartHead;
+
+    printf("\n===== YOUR CART =====\n");
+
+    while(cartTemp != NULL) {
 
         Node* temp = head;
 
         while(temp != NULL) {
 
-            if(temp->data.id == cartIDs[i]) {
+            if(temp->data.id == cartTemp->id) {
 
-                float subtotal = temp->data.price * cartQty[i];
+                float subtotal =
+                    temp->data.price *
+                    cartTemp->qty;
+
                 total += subtotal;
 
-                printf("ID: %d | %s x%d = %.2f\n",
+                printf("ID: %d | %s | Qty: %d | %.2f\n",
                        temp->data.id,
                        temp->data.name,
-                       cartQty[i],
+                       cartTemp->qty,
                        subtotal);
 
                 break;
@@ -302,65 +399,95 @@ void showCart() {
 
             temp = temp->next;
         }
+
+        cartTemp = cartTemp->next;
     }
 
     printf("----------------------\n");
     printf("Total: %.2f\n", total);
 }
 
-
-
 void checkout(char* username) {
 
-    if(cartCount == 0) {
+    if(cartHead == NULL) {
+
         printf("Cart is empty.\n");
+
         return;
     }
 
-    Order* newOrder = (Order*)malloc(sizeof(Order));
+    Order* newOrder =
+        malloc(sizeof(Order));
 
     strcpy(newOrder->username, username);
-    newOrder->count = cartCount;
 
-    for(int i = 0; i < cartCount; i++) {
-        newOrder->ids[i] = cartIDs[i];
-        newOrder->qty[i] = cartQty[i];
+    newOrder->count = 0;
+
+    CartNode* cartTemp = cartHead;
+
+    while(cartTemp != NULL) {
+
+        newOrder->ids[newOrder->count] =
+            cartTemp->id;
+
+        newOrder->qty[newOrder->count] =
+            cartTemp->qty;
+
+        newOrder->count++;
+
+        cartTemp = cartTemp->next;
     }
 
     newOrder->next = NULL;
 
     if(front == NULL) {
+
         front = rear = newOrder;
-    } else {
+    }
+    else {
+
         rear->next = newOrder;
         rear = newOrder;
     }
 
-    printf("Order added to queue successfully!\n");
+    saveOrdersToFile();
 
-    cartCount = 0;  
+    while(cartHead != NULL) {
+
+        CartNode* temp = cartHead;
+
+        cartHead = cartHead->next;
+
+        free(temp);
+    }
+
+    printf("Checkout successful!\n");
 }
-
-
 
 void showOrders() {
 
     if(front == NULL) {
+
         printf("No pending orders.\n");
+
         return;
     }
 
     Order* temp = front;
+
     int num = 1;
 
     printf("\n===== ORDER QUEUE =====\n");
 
     while(temp != NULL) {
 
-        printf("%d. Customer: %s\n", num++, temp->username);
+        printf("%d. %s\n",
+               num++,
+               temp->username);
 
         for(int i = 0; i < temp->count; i++) {
-            printf("   - Product ID: %d | Qty: %d\n",
+
+            printf("Product ID: %d | Qty: %d\n",
                    temp->ids[i],
                    temp->qty[i]);
         }
@@ -369,18 +496,16 @@ void showOrders() {
     }
 }
 
-
-
 void processOrder() {
 
     if(front == NULL) {
-        printf("No orders to process.\n");
+
+        printf("No orders.\n");
+
         return;
     }
 
     Order* temp = front;
-
-    printf("Processing order of %s...\n", temp->username);
 
     for(int i = 0; i < temp->count; i++) {
 
@@ -388,15 +513,14 @@ void processOrder() {
 
         while(p != NULL) {
 
-            if(p->data.id == temp->ids[i]) {
+            if(p->data.id ==
+               temp->ids[i]) {
 
-                if(p->data.stock >= temp->qty[i]) {
-                    p->data.stock -= temp->qty[i];
-                    p->data.soldCount += temp->qty[i];
-                } else {
-                    printf("Stock not enough for product ID %d\n",
-                           temp->ids[i]);
-                }
+                p->data.stock -=
+                    temp->qty[i];
+
+                p->data.soldCount +=
+                    temp->qty[i];
 
                 break;
             }
@@ -413,8 +537,89 @@ void processOrder() {
     free(temp);
 
     saveToFile();
+    saveOrdersToFile();
 
-    printf("Order processed successfully!\n");
+    printf("Order processed!\n");
+}
+
+void saveOrdersToFile() {
+
+    FILE* fp =
+        fopen("data/orders.txt", "w");
+
+    if(fp == NULL)
+        return;
+
+    Order* temp = front;
+
+    while(temp != NULL) {
+
+        fprintf(fp,
+                "%s %d ",
+                temp->username,
+                temp->count);
+
+        for(int i = 0; i < temp->count; i++) {
+
+            fprintf(fp,
+                    "%d %d ",
+                    temp->ids[i],
+                    temp->qty[i]);
+        }
+
+        fprintf(fp, "\n");
+
+        temp = temp->next;
+    }
+
+    fclose(fp);
+}
+
+void loadOrdersFromFile() {
+
+    FILE* fp =
+        fopen("data/orders.txt", "r");
+
+    if(fp == NULL)
+        return;
+
+    while(1) {
+
+        Order* newOrder =
+            malloc(sizeof(Order));
+
+        if(fscanf(fp,
+                  "%49s %d",
+                  newOrder->username,
+                  &newOrder->count) != 2) {
+
+            free(newOrder);
+
+            break;
+        }
+
+        for(int i = 0; i < newOrder->count; i++) {
+
+            fscanf(fp,
+                   "%d %d",
+                   &newOrder->ids[i],
+                   &newOrder->qty[i]);
+        }
+
+        newOrder->next = NULL;
+
+        if(front == NULL) {
+
+            front = rear = newOrder;
+        }
+        else {
+
+            rear->next = newOrder;
+            rear = newOrder;
+        }
+    }
+
+    fclose(fp);
 }
 ```
 
@@ -576,11 +781,13 @@ void customerMenu() {
 
         printf("\n--- Customer Menu ---\n");
         printf("1. Show Products\n");
-        printf("2. Search Product\n");
-        printf("3. Add to Cart\n");
-        printf("4. Show Cart\n");
-        printf("5. Checkout\n");
-        printf("6. Back\n");
+        printf("2. Search Product By ID\n");
+        printf("3. Search Product By Name\n");
+        printf("4. Add to Cart\n");
+        printf("5. Show Cart\n");
+        printf("6. Checkout\n");
+        printf("7. Recommend Products\n");
+        printf("8. Back\n");
         printf("Choose: ");
 
         scanf("%d", &choice);
@@ -596,18 +803,26 @@ void customerMenu() {
                 break;
 
             case 3:
-                addToCart();
+                searchProductByName();
                 break;
 
             case 4:
-                showCart();
+                addToCart();
                 break;
 
             case 5:
-                checkout(currentUser);
+                showCart();
                 break;
 
             case 6:
+                checkout(currentUser);
+                break;
+
+            case 7:
+                recommendProducts();
+                break;
+
+            case 8:
                 return;
 
             default:
@@ -621,6 +836,10 @@ int main() {
     int choice;
 
     loadFromFile();
+
+    loadUsersToHash();
+
+    loadOrdersFromFile();
 
     while(1) {
 
@@ -858,6 +1077,38 @@ void searchProduct() {
     }
 
     printf("Product not found.\n");
+}
+
+void searchProductByName() {
+
+    char keyword[50];
+    int found = 0;
+
+    printf("Enter product name: ");
+    scanf("%49s", keyword);
+
+    Node* temp = head;
+
+    while(temp != NULL) {
+
+        if(strstr(temp->data.name, keyword) != NULL) {
+
+            printf("ID: %d | %s | %.2f | Stock: %d | Sold: %d\n",
+                   temp->data.id,
+                   temp->data.name,
+                   temp->data.price,
+                   temp->data.stock,
+                   temp->data.soldCount);
+
+            found = 1;
+        }
+
+        temp = temp->next;
+    }
+
+    if(!found) {
+        printf("No matching products found.\n");
+    }
 }
 
 void updateProduct() {
@@ -1100,6 +1351,47 @@ void salesReport() {
     printf("Sold   : %d\n",
            bestSeller.soldCount);
 }
+
+void recommendProducts() {
+
+    if(head == NULL) {
+
+        printf("No products.\n");
+
+        return;
+    }
+
+    Node* temp = head;
+
+    Product bestSeller = head->data;
+
+    while(temp != NULL) {
+
+        if(temp->data.soldCount >
+           bestSeller.soldCount) {
+
+            bestSeller = temp->data;
+        }
+
+        temp = temp->next;
+    }
+
+    printf("\n===== RECOMMENDED PRODUCT =====\n");
+
+    printf("Best Seller:\n");
+
+    printf("ID: %d\n",
+           bestSeller.id);
+
+    printf("Name: %s\n",
+           bestSeller.name);
+
+    printf("Price: %.2f\n",
+           bestSeller.price);
+
+    printf("Sold: %d\n",
+           bestSeller.soldCount);
+}
 ```
 
 ./src/user.c
@@ -1107,10 +1399,51 @@ void salesReport() {
 #include <stdio.h>
 #include <string.h>
 #include "user.h"
+#include <stdlib.h>
 
 UserNode* hashTable[TABLE_SIZE];
 
 char currentUser[50];
+
+void insertUserToHash(User u) {
+
+    int index = hash(u.username);
+
+    UserNode* newNode =
+        malloc(sizeof(UserNode));
+
+    if(newNode == NULL) {
+        return;
+    }
+
+    newNode->data = u;
+
+    newNode->next = hashTable[index];
+
+    hashTable[index] = newNode;
+}
+
+User* searchUser(char* username) {
+
+    int index = hash(username);
+
+    UserNode* temp =
+        hashTable[index];
+
+    while(temp != NULL) {
+
+        if(strcmp(
+            temp->data.username,
+            username) == 0) {
+
+            return &temp->data;
+        }
+
+        temp = temp->next;
+    }
+
+    return NULL;
+}
 
 void registerUser(int role) {
 
@@ -1170,6 +1503,8 @@ void registerUser(int role) {
 
     u.role = role;
 
+    insertUserToHash(u);
+
     fprintf(fp,
             "%s %s %d\n",
             u.username,
@@ -1183,19 +1518,8 @@ void registerUser(int role) {
 
 int loginUser(int role) {
 
-    FILE *fp;
-
-    User u;
-
     char username[50];
     char password[50];
-
-    fp = fopen("data/users.txt", "r");
-
-    if(fp == NULL) {
-        printf("No users found.\n");
-        return 0;
-    }
 
     printf("Username: ");
     scanf("%49s", username);
@@ -1203,27 +1527,21 @@ int loginUser(int role) {
     printf("Password: ");
     scanf("%49s", password);
 
-    while(fscanf(fp,
-                 "%49s %49s %d",
-                 u.username,
-                 u.password,
-                 &u.role) == 3) {
+    User* user =
+        searchUser(username);
 
-        if(strcmp(username, u.username) == 0 &&
-           strcmp(password, u.password) == 0 &&
-           u.role == role) {
+    if(user != NULL &&
+       strcmp(user->password,
+              password) == 0 &&
+       user->role == role) {
 
-            fclose(fp);
-            
-            printf("Login successful!\n");
+        strcpy(currentUser,
+               username);
 
-            strcpy(currentUser, username);
-            
-            return 1;
-        }
+        printf("Login successful!\n");
+
+        return 1;
     }
-
-    fclose(fp);
 
     printf("Login failed!\n");
 
@@ -1239,6 +1557,29 @@ int hash(char* str) {
     }
 
     return sum % TABLE_SIZE;
+}
+
+void loadUsersToHash() {
+
+    FILE* fp =
+        fopen("data/users.txt", "r");
+
+    if(fp == NULL) {
+        return;
+    }
+
+    User u;
+
+    while(fscanf(fp,
+                 "%49s %49s %d",
+                 u.username,
+                 u.password,
+                 &u.role) == 3) {
+
+        insertUserToHash(u);
+    }
+
+    fclose(fp);
 }
 ```
 

@@ -29,6 +29,8 @@ void showProducts();
 void updateProduct();
 void deleteProduct();
 void searchProduct();
+void searchProductByName();
+void recommendProducts();
 
 void sortProducts();
 void undoDelete();

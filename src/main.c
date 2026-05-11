@@ -82,11 +82,13 @@ void customerMenu() {
 
         printf("\n--- Customer Menu ---\n");
         printf("1. Show Products\n");
-        printf("2. Search Product\n");
-        printf("3. Add to Cart\n");
-        printf("4. Show Cart\n");
-        printf("5. Checkout\n");
-        printf("6. Back\n");
+        printf("2. Search Product By ID\n");
+        printf("3. Search Product By Name\n");
+        printf("4. Add to Cart\n");
+        printf("5. Show Cart\n");
+        printf("6. Checkout\n");
+        printf("7. Recommend Products\n");
+        printf("8. Back\n");
         printf("Choose: ");
 
         scanf("%d", &choice);
@@ -102,18 +104,26 @@ void customerMenu() {
                 break;
 
             case 3:
-                addToCart();
+                searchProductByName();
                 break;
 
             case 4:
-                showCart();
+                addToCart();
                 break;
 
             case 5:
-                checkout(currentUser);
+                showCart();
                 break;
 
             case 6:
+                checkout(currentUser);
+                break;
+
+            case 7:
+                recommendProducts();
+                break;
+
+            case 8:
                 return;
 
             default:
@@ -129,6 +139,8 @@ int main() {
     loadFromFile();
 
     loadUsersToHash();
+
+    loadOrdersFromFile();
 
     while(1) {
 
