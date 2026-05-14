@@ -1,6 +1,6 @@
 # cpe112
 
-Smart Inventory and Recommendation System implemented in C
+Smart Convenience Management System
 
 ---
 
@@ -95,7 +95,7 @@ git pull
 
 ทุกครั้งหลังแก้เสร็จ
 git add .
-git commit -m "editing README.md"
+git commit -m "fix undo delete function"
 git push
 
 ถ้าจะดูประวัติ commit

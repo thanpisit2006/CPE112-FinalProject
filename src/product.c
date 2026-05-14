@@ -7,14 +7,15 @@
 #include "file.h"
 
 Node* head = NULL;
-StackNode* undoStack = NULL;
 
 Node* createNode(Product p) {
 
     Node* newNode = malloc(sizeof(Node));
 
     if(newNode == NULL) {
+
         printf("Memory allocation failed!\n");
+
         exit(1);
     }
 
@@ -24,57 +25,175 @@ Node* createNode(Product p) {
     return newNode;
 }
 
-void pushUndo(Product p) {
+void saveDeletedProduct(Product p) {
 
-    StackNode* newNode = malloc(sizeof(StackNode));
+    FILE* fp =
+        fopen("data/deletedproducts.txt", "a");
 
-    if(newNode == NULL) {
-        printf("Stack allocation failed!\n");
+    if(fp == NULL) {
+
+        printf("Error opening deleted file.\n");
+
         return;
     }
 
-    newNode->data = p;
-    newNode->next = undoStack;
+    fprintf(fp,
+            "%d|%s|%.2f|%d|%d\n",
+            p.id,
+            p.name,
+            p.price,
+            p.stock,
+            p.soldCount);
 
-    undoStack = newNode;
+    fclose(fp);
 }
 
-Product popUndo() {
+void showDeletedProducts() {
 
-    Product empty = {0};
+    FILE* fp =
+        fopen("data/deletedproducts.txt", "r");
 
-    if(undoStack == NULL) {
-        return empty;
+    if(fp == NULL) {
+
+        printf("No deleted products file.\n");
+
+        return;
     }
 
-    StackNode* temp = undoStack;
+    Product p;
 
-    Product p = temp->data;
+    printf("\n===== DELETED PRODUCTS =====\n");
 
-    undoStack = undoStack->next;
+    int found = 0;
 
-    free(temp);
+    while(fscanf(fp,
+                 "%d|%49[^|]|%f|%d|%d",
+                 &p.id,
+                 p.name,
+                 &p.price,
+                 &p.stock,
+                 &p.soldCount) == 5) {
 
-    return p;
+        printf("ID: %d | %s | Price: %.2f | Stock: %d\n",
+               p.id,
+               p.name,
+               p.price,
+               p.stock);
+
+        found = 1;
+    }
+
+    if(!found) {
+
+        printf("No deleted products.\n");
+    }
+
+    fclose(fp);
 }
 
 void undoDelete() {
 
-    if(undoStack == NULL) {
-        printf("Nothing to undo!\n");
+    FILE* fp =
+        fopen("data/deletedproducts.txt", "r");
+
+    if(fp == NULL) {
+
+        printf("No deleted products.\n");
+
         return;
     }
 
-    Product p = popUndo();
+    Product products[100];
 
-    Node* newNode = createNode(p);
+    int count = 0;
 
-    newNode->next = head;
-    head = newNode;
+    while(fscanf(fp,
+                 "%d|%49[^|]|%f|%d|%d",
+                 &products[count].id,
+                 products[count].name,
+                 &products[count].price,
+                 &products[count].stock,
+                 &products[count].soldCount) == 5) {
 
-    saveToFile();
+        count++;
+    }
 
-    printf("Undo successful!\n");
+    fclose(fp);
+
+    if(count == 0) {
+
+        printf("No deleted products.\n");
+
+        return;
+    }
+
+    showDeletedProducts();
+
+    int restoreId;
+
+    printf("\nEnter product ID to restore: ");
+
+    scanf("%d", &restoreId);
+
+    int found = 0;
+
+    FILE* tempFile =
+        fopen("data/temp.txt", "w");
+
+    for(int i = 0; i < count; i++) {
+
+        if(products[i].id == restoreId) {
+
+            Node* newNode =
+                createNode(products[i]);
+
+            if(head == NULL) {
+
+                head = newNode;
+            }
+            else {
+
+                Node* temp = head;
+
+                while(temp->next != NULL) {
+
+                    temp = temp->next;
+                }
+
+                temp->next = newNode;
+            }
+
+            found = 1;
+
+            continue;
+        }
+
+        fprintf(tempFile,
+                "%d|%s|%.2f|%d|%d\n",
+                products[i].id,
+                products[i].name,
+                products[i].price,
+                products[i].stock,
+                products[i].soldCount);
+    }
+
+    fclose(tempFile);
+
+    remove("data/deletedproducts.txt");
+
+    rename("data/temp.txt",
+           "data/deletedproducts.txt");
+
+    if(found) {
+
+        saveToFile();
+
+        printf("Product restored successfully!\n");
+    }
+    else {
+
+        printf("Product ID not found.\n");
+    }
 }
 
 void addProduct() {
@@ -82,6 +201,7 @@ void addProduct() {
     Product p;
 
     printf("Enter ID: ");
+
     scanf("%d", &p.id);
 
     Node* check = head;
@@ -89,7 +209,9 @@ void addProduct() {
     while(check != NULL) {
 
         if(check->data.id == p.id) {
+
             printf("Product ID already exists!\n");
+
             return;
         }
 
@@ -97,21 +219,28 @@ void addProduct() {
     }
 
     printf("Enter Name: ");
+
     scanf(" %[^\n]", p.name);
 
     printf("Enter Price: ");
+
     scanf("%f", &p.price);
 
     if(p.price <= 0) {
+
         printf("Invalid price!\n");
+
         return;
     }
 
     printf("Enter Stock: ");
+
     scanf("%d", &p.stock);
 
     if(p.stock < 0) {
+
         printf("Invalid stock!\n");
+
         return;
     }
 
@@ -120,6 +249,7 @@ void addProduct() {
     Node* newNode = createNode(p);
 
     if(head == NULL) {
+
         head = newNode;
     }
     else {
@@ -127,6 +257,7 @@ void addProduct() {
         Node* temp = head;
 
         while(temp->next != NULL) {
+
             temp = temp->next;
         }
 
@@ -143,7 +274,9 @@ void showProducts() {
     Node* temp = head;
 
     if(temp == NULL) {
+
         printf("No products available.\n");
+
         return;
     }
 
@@ -170,6 +303,7 @@ void searchProduct() {
     int id;
 
     printf("Enter ID to search: ");
+
     scanf("%d", &id);
 
     Node* temp = head;
@@ -196,8 +330,7 @@ void toLowerCase(char* str) {
 
     for(int i = 0; str[i]; i++) {
 
-        str[i] =
-            tolower(str[i]);
+        str[i] = tolower(str[i]);
     }
 }
 
@@ -251,6 +384,7 @@ void updateProduct() {
     int id;
 
     printf("Enter ID to update: ");
+
     scanf("%d", &id);
 
     Node* temp = head;
@@ -260,29 +394,19 @@ void updateProduct() {
         if(temp->data.id == id) {
 
             float newPrice;
+
             int newStock;
 
             printf("New Price: ");
+
             scanf("%f", &newPrice);
 
-            if(newPrice <= 0) {
-
-                printf("Invalid price!\n");
-
-                return;
-            }
-
             printf("New Stock: ");
+
             scanf("%d", &newStock);
 
-            if(newStock < 0) {
-
-                printf("Invalid stock!\n");
-
-                return;
-            }
-
             temp->data.price = newPrice;
+
             temp->data.stock = newStock;
 
             saveToFile();
@@ -303,21 +427,25 @@ void deleteProduct() {
     int id;
 
     printf("Enter ID to delete: ");
+
     scanf("%d", &id);
 
     Node* temp = head;
+
     Node* prev = NULL;
 
     while(temp != NULL) {
 
         if(temp->data.id == id) {
 
-            pushUndo(temp->data);
+            saveDeletedProduct(temp->data);
 
             if(prev == NULL) {
+
                 head = temp->next;
             }
             else {
+
                 prev->next = temp->next;
             }
 
@@ -325,12 +453,13 @@ void deleteProduct() {
 
             saveToFile();
 
-            printf("Deleted!\n");
+            printf("Deleted successfully!\n");
 
             return;
         }
 
         prev = temp;
+
         temp = temp->next;
     }
 
@@ -340,7 +469,9 @@ void deleteProduct() {
 void sortProducts() {
 
     if(head == NULL || head->next == NULL) {
+
         printf("Not enough products to sort.\n");
+
         return;
     }
 
@@ -362,11 +493,13 @@ void sortProducts() {
     int swapped;
 
     Node* ptr1;
+
     Node* lptr = NULL;
 
     do {
 
         swapped = 0;
+
         ptr1 = head;
 
         while(ptr1->next != lptr) {
@@ -431,7 +564,9 @@ void sortProducts() {
             if(shouldSwap) {
 
                 Product temp = ptr1->data;
+
                 ptr1->data = ptr1->next->data;
+
                 ptr1->next->data = temp;
 
                 swapped = 1;
@@ -452,13 +587,16 @@ void sortProducts() {
 void salesReport() {
 
     if(head == NULL) {
+
         printf("No products available.\n");
+
         return;
     }
 
     Node* temp = head;
 
     int totalProducts = 0;
+
     int totalSold = 0;
 
     float revenue = 0;
