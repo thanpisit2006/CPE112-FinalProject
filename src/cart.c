@@ -211,7 +211,7 @@ void checkout(char* username) {
         free(temp);
     }
 
-    printf("Checkout successful!\n");
+    printf("Now, you are in queue!!!\n");
 }
 
 void showOrders() {
