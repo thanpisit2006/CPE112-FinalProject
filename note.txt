@@ -159,7 +159,7 @@ git pull
 
 ทุกครั้งหลังแก้เสร็จ
 git add .
-git commit -m "editing README.md"
+git commit -m "fix undo delete function"
 git push
 
 ถ้าจะดูประวัติ commit
@@ -219,7 +219,101 @@ run:
 3|Water|7.00|1|8
 4|Mushroom|34.00|15|0
 5|Orange Juice|10.00|5|0
-
+6|Sugar|28.00|50|11
+7|Salt|12.00|70|8
+8|Coffee|89.00|25|14
+9|Tea|55.00|30|9
+10|Orange Juice|45.00|22|7
+11|Apple|15.00|40|5
+12|Banana|12.00|55|6
+13|Mango|25.00|30|4
+14|Coke|20.00|80|16
+15|Pepsi|20.00|75|13
+16|Sprite|19.00|60|11
+17|Chocolate|35.00|45|9
+18|Candy|5.00|100|20
+19|Chips|25.00|70|17
+20|Cookie|30.00|50|12
+21|Soap|22.00|40|6
+22|Shampoo|89.00|30|7
+23|Toothpaste|45.00|35|10
+24|Toothbrush|20.00|50|5
+25|Tissue|35.00|60|8
+26|Notebook|25.00|70|9
+27|Pen|10.00|100|14
+28|Pencil|8.00|90|13
+29|Marker|18.00|50|4
+30|Eraser|5.00|80|6
+31|Instant Noodles|15.00|100|30
+32|Fish Sauce|40.00|35|11
+33|Soy Sauce|38.00|30|8
+34|Cooking Oil|65.00|40|12
+35|Butter|75.00|20|5
+36|Cheese|120.00|15|4
+37|Yogurt|35.00|25|7
+38|Ice Cream|45.00|30|10
+39|Sausage|55.00|28|9
+40|Ham|65.00|20|6
+41|Chicken|95.00|40|14
+42|Pork|120.00|35|13
+43|Beef|220.00|18|7
+44|Fish|150.00|22|8
+45|Shrimp|180.00|15|5
+46|Crab Stick|55.00|25|4
+47|Frozen Pizza|199.00|12|3
+48|French Fries|89.00|20|5
+49|Green Tea|25.00|40|6
+50|Mineral Water|12.00|100|22
+51|Laptop Bag|450.00|10|2
+52|Mouse|250.00|15|5
+53|Keyboard|590.00|12|4
+54|USB Cable|120.00|40|9
+55|Phone Charger|350.00|18|6
+56|Power Bank|790.00|10|3
+57|Earphones|299.00|25|7
+58|Bluetooth Speaker|990.00|8|2
+59|LED Lamp|220.00|20|5
+60|Battery|35.00|50|10
+61|Face Mask|5.00|200|25
+62|Hand Sanitizer|55.00|35|9
+63|Laundry Detergent|120.00|25|6
+64|Dishwashing Liquid|45.00|30|5
+65|Mop|250.00|10|1
+66|Broom|120.00|12|2
+67|Bucket|90.00|15|3
+68|Snack Box|35.00|40|7
+69|Cup Noodles|18.00|90|15
+70|Hotdog|25.00|50|8
+71|Sandwich|45.00|35|6
+72|Croissant|55.00|20|5
+73|Donut|20.00|60|11
+74|Cake|120.00|18|4
+75|Muffin|35.00|30|5
+76|Energy Drink|25.00|70|13
+77|Vitamin Water|30.00|50|7
+78|Protein Bar|45.00|25|4
+79|Cereal|95.00|20|6
+80|Oat Milk|85.00|18|5
+81|Almond Milk|95.00|15|3
+82|Ice Coffee|40.00|30|9
+83|Latte|55.00|25|8
+84|Mocha|60.00|22|7
+85|Espresso|50.00|20|5
+86|Green Apple Soda|25.00|35|4
+87|Lemon Soda|22.00|40|5
+88|Strawberry Milk|30.00|28|6
+89|Blueberry Yogurt|45.00|20|4
+90|Tuna Can|65.00|30|8
+91|Corn Can|45.00|35|5
+92|Beans Can|50.00|25|4
+93|Tomato Sauce|38.00|40|6
+94|Mayonnaise|55.00|30|5
+95|Black Pepper|28.00|20|3
+96|Chili Sauce|35.00|35|7
+97|Honey|120.00|15|4
+98|Jam|85.00|20|5
+99|Peanut Butter|95.00|18|4
+100|Mineral Soda|18.00|60|9
 ```
 
 ./data/users.txt
@@ -233,7 +327,118 @@ p plovesom 0
 Lukaku 7777 0
 bank 1234 0
 ll 1234 0
-
+Liam P3xW1zRt 0
+Emma M8qJ5nYs 0
+Noah K4rT9uLp 0
+Ava Z1bX6mQw 0
+William H8nC2vRe 0
+Sophia Q5tY7kLm 0
+Benjamin R2mP8xVn 0
+Isabella N9zW4qTy 0
+Lucas V3cL1pQr 0
+Mia D7kX5nBt 0
+Henry U6vM2qLp 0
+Charlotte J1pR8xWn 0
+Alexander Y4mT7kQc 0
+Amelia C9qV2nLp 0
+Daniel B5xR1tYm 0
+Harper G8kN4pQw 0
+Matthew F2vL7mXt 0
+Evelyn W1qP9nKr 0
+Joseph T6mX3vLp 0
+Abigail K8rQ2nYw 0
+Samuel P4xV7mNt 0
+Emily H9kL1qRc 0
+David M5vT8nXp 0
+Elizabeth Q2rW6kLm 0
+Carter N7xP4vYt 0
+Sofia Z3mL8qRw 0
+Owen R1kT5nVc 0
+Avery Y9qX2mLp 0
+Jack D4vN7kQt 0
+Ella U8mP1xWr 0
+Luke C5rL9nYq 0
+Scarlett B2xT6mVp 0
+Jayden G7qW3kLn 0
+Grace F1mX8vRt 0
+Gabriel W4kP2nYx 0
+Chloe T9vL5mQr 0
+Julian K3xN7qWp 0
+Victoria P8mT1vLc 0
+Levi H2qR6kYn 0
+Riley M7xW4vPt 0
+Isaac Q1nL9kXm 0
+Lily N5vT2qWr 0
+Anthony Z8mP6xLc 0
+Zoey R4kX1nVt 0
+Dylan Y7qL3mWp 0
+Hannah C2vT9kQr 0
+Andrew B6mN5xLp 0
+Aria G1qW8vRt 0
+Christopher F4kP2nYm 0
+Layla W9xL7mQc 0
+Joshua T3vR1kNp 0
+Nora K8mX5qWt 0
+Nathan P2nL6vYr 0
+Penelope H7qT4kXm 0
+Ryan M1xW9vLp 0
+Aurora Q5kN3mRt 0
+Adrian N8vP2qLc 0
+Savannah Z4xT7mYw 0
+Thomas R1kL5vQn 0
+Brooklyn Y6mX8qWp 0
+Charles D3vN2kRt 0
+Bella U9xP4mLc 0
+Isaiah C5qW1nYt 0
+Claire B7mT8vLp 0
+Josiah G2kX6qWr 0
+Skylar F1vL9mQt 0
+Elias W4xP3nYr 0
+Lucy T8mN5qLc 0
+Christian K2vR7xWp 0
+Paisley P9kL1mQt 0
+Hunter H5qX4vYn 0
+Everly M3nT8kWr 0
+Jonathan Q6xP2mLc 0
+Anna N1vL9qYt 0
+Connor Z7kW5mRp 0
+Caroline R4xT2vLn 0
+Aaron Y8mP1qWc 0
+Genesis D3kX7vRt 0
+Eli U5nL2mQp 0
+Kennedy C9xT4vWr 0
+Landon B1kP8mYq 0
+Sarah G6vN3qLt 0
+Jeremiah F2xW7mRc 0
+Allison W9kL5vPt 0
+Colton T4mX1qYn 0
+Hailey K8vP6mQr 0
+Roman P3xT2kLc 0
+Madelyn H7qW9vRn 0
+Easton M5kL1xYp 0
+Natalie Q2vT8mWr 0
+Miles N4xP7kLc 0
+Leah Z1mX3qRt 0
+Robert R9vL5kWp 0
+Maya Y6qT2mLn 0
+Cooper D8xW4vRc 0
+Stella U1kP7mYq 0
+Ian C3vN9qLt 0
+Kinsley B5xT2mWr 0
+Jordan G8kL4vPn 0
+Naomi F1qX7mRc 0
+Austin W6vP3kYt 0
+Elena T2mL9qWr 0
+Dominic K5xN1vLp 0
+Ruby P8kT4mQc 0
+Adam H3vW7qYn 0
+Eva M9xP2kRt 0
+Xavier Q1mL6vWp 0
+Ivy N4qT8kLc 0
+Jose Z7vX5mRn 0
+Sadie R2kP1qWt 0
+Jace Y8mL3vQc 0
+Piper D6xT9kWr 0
 ```
 
 ./include/cart.h

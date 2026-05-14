@@ -95,7 +95,7 @@ git pull
 
 ทุกครั้งหลังแก้เสร็จ
 git add .
-git commit -m "fix undo delete function"
+git commit -m "add sample datasets"
 git push
 
 ถ้าจะดูประวัติ commit

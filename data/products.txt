@@ -3,3 +3,98 @@
 3|Water|7.00|1|8
 4|Mushroom|34.00|15|0
 5|Orange Juice|10.00|5|0
+6|Sugar|28.00|50|11
+7|Salt|12.00|70|8
+8|Coffee|89.00|25|14
+9|Tea|55.00|30|9
+10|Orange Juice|45.00|22|7
+11|Apple|15.00|40|5
+12|Banana|12.00|55|6
+13|Mango|25.00|30|4
+14|Coke|20.00|80|16
+15|Pepsi|20.00|75|13
+16|Sprite|19.00|60|11
+17|Chocolate|35.00|45|9
+18|Candy|5.00|100|20
+19|Chips|25.00|70|17
+20|Cookie|30.00|50|12
+21|Soap|22.00|40|6
+22|Shampoo|89.00|30|7
+23|Toothpaste|45.00|35|10
+24|Toothbrush|20.00|50|5
+25|Tissue|35.00|60|8
+26|Notebook|25.00|70|9
+27|Pen|10.00|100|14
+28|Pencil|8.00|90|13
+29|Marker|18.00|50|4
+30|Eraser|5.00|80|6
+31|Instant Noodles|15.00|100|30
+32|Fish Sauce|40.00|35|11
+33|Soy Sauce|38.00|30|8
+34|Cooking Oil|65.00|40|12
+35|Butter|75.00|20|5
+36|Cheese|120.00|15|4
+37|Yogurt|35.00|25|7
+38|Ice Cream|45.00|30|10
+39|Sausage|55.00|28|9
+40|Ham|65.00|20|6
+41|Chicken|95.00|40|14
+42|Pork|120.00|35|13
+43|Beef|220.00|18|7
+44|Fish|150.00|22|8
+45|Shrimp|180.00|15|5
+46|Crab Stick|55.00|25|4
+47|Frozen Pizza|199.00|12|3
+48|French Fries|89.00|20|5
+49|Green Tea|25.00|40|6
+50|Mineral Water|12.00|100|22
+51|Laptop Bag|450.00|10|2
+52|Mouse|250.00|15|5
+53|Keyboard|590.00|12|4
+54|USB Cable|120.00|40|9
+55|Phone Charger|350.00|18|6
+56|Power Bank|790.00|10|3
+57|Earphones|299.00|25|7
+58|Bluetooth Speaker|990.00|8|2
+59|LED Lamp|220.00|20|5
+60|Battery|35.00|50|10
+61|Face Mask|5.00|200|25
+62|Hand Sanitizer|55.00|35|9
+63|Laundry Detergent|120.00|25|6
+64|Dishwashing Liquid|45.00|30|5
+65|Mop|250.00|10|1
+66|Broom|120.00|12|2
+67|Bucket|90.00|15|3
+68|Snack Box|35.00|40|7
+69|Cup Noodles|18.00|90|15
+70|Hotdog|25.00|50|8
+71|Sandwich|45.00|35|6
+72|Croissant|55.00|20|5
+73|Donut|20.00|60|11
+74|Cake|120.00|18|4
+75|Muffin|35.00|30|5
+76|Energy Drink|25.00|70|13
+77|Vitamin Water|30.00|50|7
+78|Protein Bar|45.00|25|4
+79|Cereal|95.00|20|6
+80|Oat Milk|85.00|18|5
+81|Almond Milk|95.00|15|3
+82|Ice Coffee|40.00|30|9
+83|Latte|55.00|25|8
+84|Mocha|60.00|22|7
+85|Espresso|50.00|20|5
+86|Green Apple Soda|25.00|35|4
+87|Lemon Soda|22.00|40|5
+88|Strawberry Milk|30.00|28|6
+89|Blueberry Yogurt|45.00|20|4
+90|Tuna Can|65.00|30|8
+91|Corn Can|45.00|35|5
+92|Beans Can|50.00|25|4
+93|Tomato Sauce|38.00|40|6
+94|Mayonnaise|55.00|30|5
+95|Black Pepper|28.00|20|3
+96|Chili Sauce|35.00|35|7
+97|Honey|120.00|15|4
+98|Jam|85.00|20|5
+99|Peanut Butter|95.00|18|4
+100|Mineral Soda|18.00|60|9
