@@ -1,12 +1,12 @@
 # cpe112
 
-Smart Convenience Management System
+Smart Convenience Management System - CPE112 Final Project
 
 ---
 
 ## overview
 
-This project is a console-based inventory management system written in C.
+This project is a console based inventory management system written in C.
 
 The system supports:
 
@@ -52,7 +52,6 @@ The system supports:
 | data structure | usage |
 |---|---|
 | linked list | product storage |
-| stack | undo deleted products |
 | queue | customer orders |
 | hash table | user management |
 
@@ -60,9 +59,9 @@ The system supports:
 
 ## project structure
 
-```text
 .
 ├── data/
+│   ├── deletedproducts.txt
 │   ├── products.txt
 │   ├── users.txt
 │   ├── orders.txt
@@ -83,8 +82,3 @@ The system supports:
 │
 ├── .gitignore
 └── README.md
-
-
-≈
-
-
