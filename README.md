@@ -82,3 +82,13 @@ The system supports:
 │
 ├── .gitignore
 └── README.md
+
+## run instruction
+
+step 1: run this command on terminal
+    gcc src/*.c -Iinclude -Wall -Wextra -o app
+
+step 2: after previous command finished, then run this command
+    ./app
+
+step 3: program running
